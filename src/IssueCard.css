@@ -1,0 +1,52 @@
+/* src/IssueCard.css */
+
+.card {
+  width: 500px; /* Increase this value to make the card wider */
+  margin: 10px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  box-sizing: border-box;
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: right;
+  }
+  
+  .card-buttons {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .card-buttons button {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .card-buttons button:hover {
+    background-color: #0056b3;
+  }
+  
+  .action-button {
+    background-color: #28a745;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .action-button:hover {
+    background-color: #218838;
+  }
+  

@@ -1,38 +1,86 @@
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+  text-align: left;
 }
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 20px;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.App-header ul {
+  list-style: none;
+  padding: 0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.App-header ul li {
+  display: inline;
+  margin: 0 10px;
+  cursor: pointer;
 }
+
+.toggle-form-button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 20px;
+}
+
+.toggle-form-button:hover {
+  background-color: #0056b3;
+}
+
+.add-issue-form {
+  margin: 20px;
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 12px #aaa;
+}
+
+.add-issue-form form div {
+  margin-bottom: 10px;
+}
+
+.add-issue-form form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.add-issue-form form input {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+  box-sizing: border-box;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 20px;
+}
+
+.issue-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.issues-container {
+  margin: 20px;
+}
+
+.issues-container h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.issue-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
