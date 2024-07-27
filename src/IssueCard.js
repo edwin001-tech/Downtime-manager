@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import AddActionForm from './AddActionForm';
 import './IssueCard.css';
 
-const IssueCard = ({ issue }) => {
+const IssueCard = ({ issue, onResolve }) => {
   const [showAddActionForm, setShowAddActionForm] = useState(false);
   const [actions, setActions] = useState([]);
 
@@ -25,7 +25,10 @@ const IssueCard = ({ issue }) => {
         <h3>{issue.issue}</h3>
         <div className="card-buttons">
           <button>Edit</button>
-          <button>Resolve</button>
+          {onResolve && (
+          <button className="resolve-button" onClick={onResolve}>
+            Resolve
+          </button>)}
         </div>
       </div>
       <p><strong>Since:</strong> {issue.since}</p>

@@ -10,6 +10,7 @@ function App() {
   });
 
   const [issues, setIssues] = useState([]);
+  const [resolvedIssues, setResolvedIssues] = useState([]);
   const [showAddIssueForm, setShowAddIssueForm] = useState(false);
 
   const handleChange = (e) => {
@@ -37,6 +38,13 @@ function App() {
       service: ''
     });
     setShowAddIssueForm(false);
+  };
+
+  const handleResolve = (index) => {
+    const issueToResolve = issues[index];
+    const newIssues = issues.filter((_, i) => i !== index);
+    setIssues(newIssues);
+    setResolvedIssues([...resolvedIssues, issueToResolve]);
   };
 
   return (
@@ -101,13 +109,30 @@ function App() {
             </form>
           </div>
         )}
+
         <div className="issues-container">
-        <h2>Ongoing Issues</h2>
-        <div className="issue-list">
-          {issues.map((issue, index) => (
-            <IssueCard key={index} issue={issue} />
-          ))}
+          <h2>Ongoing Issues</h2>
+          <div className="issue-list">
+            {issues.map((issue, index) => (
+              <IssueCard
+                key={index}
+                issue={issue}
+                onResolve={() => handleResolve(index)}
+              />
+            ))}
+          </div>
         </div>
+
+        <div className="resolved-container">
+          <h2>Resolved Issues</h2>
+          <div className="issue-list">
+            {resolvedIssues.map((issue, index) => (
+              <IssueCard
+                key={index}
+                issue={issue}
+              />
+            ))}
+          </div>
         </div>
       </main>
     </div>
