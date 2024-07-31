@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import AddActionForm from './AddActionForm';
 import './IssueCard.css';
+import EditIssueForm from './EditIssueForm';
 
-const IssueCard = ({ issue, onResolve, isResolved }) => {
+const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => {
   const [showAddActionForm, setShowAddActionForm] = useState(false);
   const [actions, setActions] = useState(issue.actions || []); // Initialize actions with the issue's existing actions
+  const [showEditForm, setShowEditForm] = useState(false);
 
   useEffect(() => {
     setActions(issue.actions || []);
@@ -28,7 +30,19 @@ const IssueCard = ({ issue, onResolve, isResolved }) => {
       <div className="card-header">
         <h3>{issue.issue}</h3>
         <div className="card-buttons">
-          <button>Edit</button>
+
+       {/* Edit button for ongoing issues */}
+        {!isResolved && (
+      <button onClick={() => setShowEditForm(true)}>Edit</button>
+    )}
+
+    {/* Close button for resolved issues */}
+    {isResolved && onClose && (
+      <button className="close-button" onClick={() => onClose(issue)}>
+        Close
+      </button>
+    )}
+    {/* resolved button for ongoing issues */}
           {!isResolved && onResolve && (
             <button className="resolve-button" onClick={onResolve}>
               Resolve
@@ -36,6 +50,19 @@ const IssueCard = ({ issue, onResolve, isResolved }) => {
           )}
         </div>
       </div>
+
+      {/* Edit Form */}
+      {showEditForm && (
+        <EditIssueForm
+          issue={issue}
+          onSave={(updatedIssue) => {
+            onUpdateIssue(updatedIssue);
+            setShowEditForm(false);
+          }}
+          onCancel={() => setShowEditForm(false)}
+        />
+      )}
+
       <p><strong>Since:</strong> {issue.since}</p>
       <p><strong>Affected Service:</strong> {issue.service}</p>
 
@@ -57,6 +84,8 @@ const IssueCard = ({ issue, onResolve, isResolved }) => {
           Add Action
         </button>
       )}
+
+      
 
       {showAddActionForm && (
         <AddActionForm onAdd={handleAddAction} onCancel={handleCancel} />

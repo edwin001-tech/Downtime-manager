@@ -50,6 +50,14 @@ function App() {
     setResolvedIssues([...resolvedIssues, issueToResolve]);
   };
 
+  const handleCloseIssue = (issueToClose) => {
+    setResolvedIssues(resolvedIssues.filter(issue => issue !== issueToClose));
+  };
+
+  const handleUpdateIssue = (updatedIssue) => {
+    setIssues(issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue));
+  };
+
   
 
   return (
@@ -123,6 +131,7 @@ function App() {
                 key={index}
                 issue={issue}
                 onResolve={() => handleResolve(index)}
+                onUpdateIssue={handleUpdateIssue}
               />
             ))}
           </div>
@@ -136,6 +145,7 @@ function App() {
                 key={index}
                 issue={issue}
                 isResolved={true}
+                onClose={handleCloseIssue}
               />
             ))}
           </div>
