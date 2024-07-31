@@ -6,7 +6,8 @@ function App() {
   const [formData, setFormData] = useState({
     issue: '',
     since: '',
-    service: ''
+    service: '',
+    actions: []
   });
 
   const [issues, setIssues] = useState([]);
@@ -22,11 +23,12 @@ function App() {
   };
 
   const handleCreate = () => {
-    setIssues([...issues, formData]);
+    setIssues([...issues,{...formData, actions: []} ]);
     setFormData({
       issue: '',
       since: '',
-      service: ''
+      service: '',
+      actions: []
     });
     setShowAddIssueForm(false);
   };
@@ -35,7 +37,8 @@ function App() {
     setFormData({
       issue: '',
       since: '',
-      service: ''
+      service: '',
+      actions: []
     });
     setShowAddIssueForm(false);
   };
@@ -46,6 +49,8 @@ function App() {
     setIssues(newIssues);
     setResolvedIssues([...resolvedIssues, issueToResolve]);
   };
+
+  
 
   return (
     <div className="App">
@@ -130,6 +135,7 @@ function App() {
               <IssueCard
                 key={index}
                 issue={issue}
+                isResolved={true}
               />
             ))}
           </div>

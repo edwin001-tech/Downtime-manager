@@ -72,6 +72,10 @@ button {
   margin: 20px;
 }
 
+.resolved-container {
+  margin: 20px;
+}
+
 .issues-container h2 {
   font-size: 24px;
   margin-bottom: 20px;

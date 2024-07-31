@@ -1,16 +1,22 @@
-// src/IssueCard.js
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AddActionForm from './AddActionForm';
 import './IssueCard.css';
 
-const IssueCard = ({ issue, onResolve }) => {
+const IssueCard = ({ issue, onResolve, isResolved }) => {
   const [showAddActionForm, setShowAddActionForm] = useState(false);
-  const [actions, setActions] = useState([]);
+  const [actions, setActions] = useState(issue.actions || []); // Initialize actions with the issue's existing actions
+
+  useEffect(() => {
+    setActions(issue.actions || []);
+  }, [issue]);
 
   const handleAddAction = (actionData) => {
-    setActions([...actions, actionData]);
+    const updatedActions = [...actions, actionData];
+    setActions(updatedActions);
     setShowAddActionForm(false);
+
+    // Also update the issue object with the new actions
+    issue.actions = updatedActions;
   };
 
   const handleCancel = () => {
@@ -18,17 +24,16 @@ const IssueCard = ({ issue, onResolve }) => {
   };
 
   return (
-    
     <div className="card">
-        
       <div className="card-header">
         <h3>{issue.issue}</h3>
         <div className="card-buttons">
           <button>Edit</button>
-          {onResolve && (
-          <button className="resolve-button" onClick={onResolve}>
-            Resolve
-          </button>)}
+          {!isResolved && onResolve && (
+            <button className="resolve-button" onClick={onResolve}>
+              Resolve
+            </button>
+          )}
         </div>
       </div>
       <p><strong>Since:</strong> {issue.since}</p>
@@ -47,7 +52,11 @@ const IssueCard = ({ issue, onResolve }) => {
         </div>
       )}
 
-      <button className="action-button" onClick={() => setShowAddActionForm(true)}>Add Action</button>
+      {!isResolved && (
+        <button className="action-button" onClick={() => setShowAddActionForm(true)}>
+          Add Action
+        </button>
+      )}
 
       {showAddActionForm && (
         <AddActionForm onAdd={handleAddAction} onCancel={handleCancel} />
@@ -57,3 +66,6 @@ const IssueCard = ({ issue, onResolve }) => {
 };
 
 export default IssueCard;
+
+
+
