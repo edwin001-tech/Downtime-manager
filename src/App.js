@@ -124,6 +124,8 @@ function App() {
         )}
 
         <div className="issues-container">
+        {issues.length > 0 && (
+        <>
           <h2>Ongoing Issues</h2>
           <div className="issue-list">
             {issues.map((issue, index) => (
@@ -135,9 +137,13 @@ function App() {
               />
             ))}
           </div>
+          </>
+        )}
         </div>
 
         <div className="resolved-container">
+        {resolvedIssues.length > 0 && (
+        <>
           <h2>Resolved Issues</h2>
           <div className="issue-list">
             {resolvedIssues.map((issue, index) => (
@@ -149,6 +155,8 @@ function App() {
               />
             ))}
           </div>
+        </>
+        )}
         </div>
       </main>
     </div>
