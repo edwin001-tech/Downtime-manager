@@ -55,6 +55,7 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => 
       {showEditForm && (
         <EditIssueForm
           issue={issue}
+          actions={actions}
           onSave={(updatedIssue) => {
             onUpdateIssue(updatedIssue);
             setShowEditForm(false);
