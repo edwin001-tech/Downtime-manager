@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './EditIssueForm.css';
 
 const EditIssueForm = ({ issue, onSave, onCancel }) => {
   const [updatedIssue, setUpdatedIssue] = useState(issue);
