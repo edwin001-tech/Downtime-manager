@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import './App.css';
 import IssueCard from './IssueCard';
+import EditIssueForm from './EditIssueForm';
 
 function App() {
   const [formData, setFormData] = useState({
     issue: '',
     since: '',
     service: '',
+    cause: '',
+    impact: '',
     actions: []
   });
 
   const [issues, setIssues] = useState([]);
   const [resolvedIssues, setResolvedIssues] = useState([]);
+  const [editIndex, setEditIndex] = useState(null);
   const [showAddIssueForm, setShowAddIssueForm] = useState(false);
 
   const handleChange = (e) => {
@@ -28,6 +32,8 @@ function App() {
       issue: '',
       since: '',
       service: '',
+      cause: '',
+      impact: '',
       actions: []
     });
     setShowAddIssueForm(false);
@@ -38,6 +44,8 @@ function App() {
       issue: '',
       since: '',
       service: '',
+      cause: '',
+      impact: '',
       actions: []
     });
     setShowAddIssueForm(false);
@@ -80,7 +88,7 @@ function App() {
 
         {showAddIssueForm && (
           <div className="add-issue-form">
-            <h1>Create Issue</h1>
+            <h1>Create Incident</h1>
             <form>
               <div>
                 <label>
@@ -116,6 +124,28 @@ function App() {
                 </label>
               </div>
               <div>
+                <label>
+                  Cause?
+                  <input
+                    type="text"
+                    name="cause"
+                    value={formData.cause}
+                    onChange={handleChange}
+                  />
+                </label>
+              </div>
+              <div>
+                <label>
+                  Impact?
+                  <input
+                    type="text"
+                    name="impact"
+                    value={formData.impact}
+                    onChange={handleChange}
+                  />
+                </label>
+              </div>
+              <div>
                 <button type="button" onClick={handleCreate}>Create</button>
                 <button type="button" onClick={handleCancel}>Cancel</button>
               </div>
@@ -129,12 +159,21 @@ function App() {
           <h2>Ongoing Issues</h2>
           <div className="issue-list">
             {issues.map((issue, index) => (
+               editIndex === index ? (
+                <EditIssueForm
+                  key={index}
+                  issue={issue}
+                  onSave={(updatedIssue) => handleUpdateIssue(updatedIssue, index)}
+                  onCancel={() => setEditIndex(null)} // Close the form without saving
+                />
+              ) : ( 
               <IssueCard
                 key={index}
                 issue={issue}
                 onResolve={() => handleResolve(index)}
                 onUpdateIssue={handleUpdateIssue}
               />
+              )
             ))}
           </div>
           </>
