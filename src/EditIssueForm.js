@@ -28,7 +28,6 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
   return (
     <div className="edit-issue-form">
       <h3>Edit Issue</h3>
-      <div className="edit-issue-form">
   <label>
     Incident:
     <input
@@ -78,7 +77,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
       placeholder="Impact"
     />
   </label>
-</div>
+
 
       {/* Conditional rendering for Edit Actions header and fields */}
       {updatedActions.length > 0 && (

@@ -35,6 +35,7 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => 
 
        {/* Edit button for ongoing issues */}
         {!isResolved && (
+          
       <button onClick={() => setShowEditForm(true)}>Edit</button>
     )}
 
@@ -100,6 +101,3 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => 
 };
 
 export default IssueCard;
-
-
-

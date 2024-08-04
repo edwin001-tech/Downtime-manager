@@ -154,31 +154,32 @@ function App() {
         )}
 
         <div className="issues-container">
-        {issues.length > 0 && (
-        <>
-          <h2>Ongoing Issues</h2>
-          <div className="issue-list">
-            {issues.map((issue, index) => (
-               editIndex === index ? (
-                <EditIssueForm
-                  key={index}
-                  issue={issue}
-                  onSave={(updatedIssue) => handleUpdateIssue(updatedIssue, index)}
-                  onCancel={() => setEditIndex(null)} // Close the form without saving
-                />
-              ) : ( 
-              <IssueCard
-                key={index}
-                issue={issue}
-                onResolve={() => handleResolve(index)}
-                onUpdateIssue={handleUpdateIssue}
-              />
-              )
-            ))}
-          </div>
-          </>
-        )}
+          {issues.length > 0 && (
+            <>
+            <h2>Ongoing Issues</h2>
+            <div className="issue-list">
+              {issues.map((issue, index) => (
+                editIndex === index ? (
+                  <EditIssueForm
+                    key={index}
+                    issue={issue}
+                    onSave={(updatedIssue) => handleUpdateIssue(updatedIssue)}
+                    onCancel={() => setEditIndex(null)} // Close the form without saving
+                  />
+                ) : (
+                  <IssueCard
+                    key={index}
+                    issue={issue}
+                    onResolve={() => handleResolve(index)}
+                    onUpdateIssue={handleUpdateIssue}
+                  />
+                )
+              ))}
+              </div>
+            </>
+          )}
         </div>
+
 
         <div className="resolved-container">
         {resolvedIssues.length > 0 && (
