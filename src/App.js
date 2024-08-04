@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { Route, Routes, Link, useLocation } from 'react-router-dom';
 import './App.css';
 import IssueCard from './IssueCard';
 import EditIssueForm from './EditIssueForm';
+import Home from './Home';
 
 function App() {
   const [formData, setFormData] = useState({
@@ -18,6 +20,8 @@ function App() {
   const [editIndex, setEditIndex] = useState(null);
   const [showAddIssueForm, setShowAddIssueForm] = useState(false);
 
+  const location = useLocation(); // Hook to get current route
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -27,7 +31,7 @@ function App() {
   };
 
   const handleCreate = () => {
-    setIssues([...issues,{...formData, actions: []} ]);
+    setIssues([...issues, { ...formData, actions: [] }]);
     setFormData({
       issue: '',
       since: '',
@@ -66,25 +70,28 @@ function App() {
     setIssues(issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue));
   };
 
-  
-
   return (
     <div className="App">
       <header className="App-header">
         <nav>
           <ul>
-            <li>Home</li>
-            <li>Manage Issue</li>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/ongoing-issues">Ongoing Issues</Link></li>
+            <li><Link to="/resolved-issues">Resolved Issues</Link></li>
           </ul>
         </nav>
       </header>
       <main>
-        <button 
-          className="toggle-form-button" 
-          onClick={() => setShowAddIssueForm(!showAddIssueForm)}
-        >
-          {showAddIssueForm ? 'Close Add Issue Form' : 'Add New Issue'}
-        </button>
+        {location.pathname !== '/' && (
+          location.pathname !== '/resolved-issues' && (
+            <button 
+              className="toggle-form-button" 
+              onClick={() => setShowAddIssueForm(!showAddIssueForm)}
+            >
+              {showAddIssueForm ? 'Close Add Issue Form' : 'Add New Issue'}
+            </button>
+          )
+        )}
 
         {showAddIssueForm && (
           <div className="add-issue-form">
@@ -153,51 +160,68 @@ function App() {
           </div>
         )}
 
-        <div className="issues-container">
-          {issues.length > 0 && (
-            <>
-            <h2>Ongoing Issues</h2>
-            <div className="issue-list">
-              {issues.map((issue, index) => (
-                editIndex === index ? (
-                  <EditIssueForm
-                    key={index}
-                    issue={issue}
-                    onSave={(updatedIssue) => handleUpdateIssue(updatedIssue)}
-                    onCancel={() => setEditIndex(null)} // Close the form without saving
-                  />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/ongoing-issues" element={
+            !showAddIssueForm && (
+              <div className="issues-container">
+                {issues.length > 0 ? (
+                  <>
+                    <h2>Ongoing Issues</h2>
+                    <div className="issue-list">
+                      {issues.map((issue, index) =>
+                        editIndex === index ? (
+                          <EditIssueForm
+                            key={index}
+                            issue={issue}
+                            onSave={(updatedIssue) => handleUpdateIssue(updatedIssue)}
+                            onCancel={() => setEditIndex(null)} // Close the form without saving
+                          />
+                        ) : (
+                          <IssueCard
+                            key={index}
+                            issue={issue}
+                            onResolve={() => handleResolve(index)}
+                            onUpdateIssue={handleUpdateIssue}
+                          />
+                        )
+                      )}
+                    </div>
+                  </>
                 ) : (
-                  <IssueCard
-                    key={index}
-                    issue={issue}
-                    onResolve={() => handleResolve(index)}
-                    onUpdateIssue={handleUpdateIssue}
-                  />
-                )
-              ))}
+                  <p>No ongoing issues.</p>
+                )}
               </div>
-            </>
-          )}
-        </div>
+            )
+          } />
 
+          <Route path="/resolved-issues" element={
+            !showAddIssueForm && (
+              <div className="resolved-container">
+                {resolvedIssues.length > 0 ? (
+                  <>
+                    <h2>Resolved Issues</h2>
+                    <div className="issue-list">
+                      {resolvedIssues.map((issue, index) => (
+                        <IssueCard
+                          key={issue}
+                          issue={issue}
+                          isResolved={true}
+                          onClose={handleCloseIssue}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <p>No resolved issues.</p>
+                )}
+              </div>
+            )
+          } />
 
-        <div className="resolved-container">
-        {resolvedIssues.length > 0 && (
-        <>
-          <h2>Resolved Issues</h2>
-          <div className="issue-list">
-            {resolvedIssues.map((issue, index) => (
-              <IssueCard
-                key={index}
-                issue={issue}
-                isResolved={true}
-                onClose={handleCloseIssue}
-              />
-            ))}
-          </div>
-        </>
-        )}
-        </div>
+          {/* Default Route */}
+          <Route path="/" element={<Home />} />
+        </Routes>
       </main>
     </div>
   );

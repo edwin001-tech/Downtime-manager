@@ -1,24 +1,45 @@
+/* App.css */
+
+/* General styles for the app */
 .App {
   text-align: left;
+  font-family: 'Courier New', monospace;
+  font-size: small;
 }
 
+/* Header styling */
 .App-header {
   background-color: #282c34;
   padding: 20px;
   color: white;
 }
 
+/* Navigation styles */
 .App-header ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: left;
 }
 
 .App-header ul li {
   display: inline;
-  margin: 0 10px;
+  margin: 0 15px;
   cursor: pointer;
 }
 
+.App-header ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.App-header ul li a:hover {
+  text-decoration: underline;
+}
+
+/* Button styles */
 .toggle-form-button {
   background-color: #007bff;
   border: none;
@@ -33,6 +54,7 @@
   background-color: #0056b3;
 }
 
+/* Add issue form styles */
 .add-issue-form {
   margin: 20px;
   border: 1px solid #ccc;
@@ -57,34 +79,33 @@
   box-sizing: border-box;
 }
 
+/* Button styles for forms */
 button {
   margin: 5px;
   padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
+button:hover {
+  opacity: 0.8;
+}
+
+/* Issue list container styles */
 .issue-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
 }
 
-.issues-container {
+.issues-container, .resolved-container {
   margin: 20px;
 }
 
-.resolved-container {
-  margin: 20px;
-}
-
-.issues-container h2 {
+/* Heading styles */
+.issues-container h2, .resolved-container h2 {
   font-size: 24px;
   margin-bottom: 20px;
   color: #333;
 }
-
-.issue-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
