@@ -30,6 +30,11 @@ function App() {
     });
   };
 
+  const getCurrentDateTime = () => {
+    const currentDate = new Date();
+    return currentDate.toLocaleString(); // Formats as 'MM/DD/YYYY, HH:MM:SS AM/PM'
+  };
+
   const handleCreate = () => {
     setIssues([...issues, { ...formData, actions: [] }]);
     setFormData({
@@ -53,6 +58,16 @@ function App() {
       actions: []
     });
     setShowAddIssueForm(false);
+  };
+
+  const handleAddIssueFormToggle = () => {
+    setShowAddIssueForm(!showAddIssueForm);
+    if (!showAddIssueForm) {
+      setFormData({
+        ...formData,
+        since: getCurrentDateTime() // Auto-fill with current date and time
+      });
+    }
   };
 
   const handleResolve = (index) => {
@@ -82,15 +97,14 @@ function App() {
         </nav>
       </header>
       <main>
-        {location.pathname !== '/' && (
-          location.pathname !== '/resolved-issues' && (
-            <button 
-              className="toggle-form-button" 
-              onClick={() => setShowAddIssueForm(!showAddIssueForm)}
-            >
-              {showAddIssueForm ? 'Close Add Issue Form' : 'Add New Issue'}
-            </button>
-          )
+        {/* Conditionally render "Add New Issue" button */}
+        {location.pathname !== '/' && location.pathname !== '/resolved-issues' && (
+          <button 
+            className="toggle-form-button" 
+            onClick={handleAddIssueFormToggle}
+          >
+            {showAddIssueForm ? 'Close Add Issue Form' : 'Add New Issue'}
+          </button>
         )}
 
         {showAddIssueForm && (
@@ -114,8 +128,9 @@ function App() {
                   <input
                     type="text"
                     name="since"
-                    value={formData.since}
+                    value={formData.since} // Auto-filled with current date and time
                     onChange={handleChange}
+                    readOnly // Make this field read-only if you want to prevent manual changes
                   />
                 </label>
               </div>
@@ -204,7 +219,7 @@ function App() {
                     <div className="issue-list">
                       {resolvedIssues.map((issue, index) => (
                         <IssueCard
-                          key={issue}
+                          key={index}
                           issue={issue}
                           isResolved={true}
                           onClose={handleCloseIssue}
