@@ -12,7 +12,9 @@ function App() {
     service: '',
     cause: '',
     impact: '',
-    actions: []
+    trying: '',            // New Field: What are we trying?
+    person: '',            // New Field: Who is doing it?
+    additionalInfo: ''     // New Field: Any additional Information?
   });
 
   const [issues, setIssues] = useState([]);
@@ -36,14 +38,16 @@ function App() {
   };
 
   const handleCreate = () => {
-    setIssues([...issues, { ...formData, actions: [] }]);
+    setIssues([...issues, formData]);
     setFormData({
       issue: '',
       since: '',
       service: '',
       cause: '',
       impact: '',
-      actions: []
+      trying: '',          // Resetting new field
+      person: '',          // Resetting new field
+      additionalInfo: ''   // Resetting new field
     });
     setShowAddIssueForm(false);
   };
@@ -55,7 +59,9 @@ function App() {
       service: '',
       cause: '',
       impact: '',
-      actions: []
+      trying: '',          // Resetting new field
+      person: '',          // Resetting new field
+      additionalInfo: ''   // Resetting new field
     });
     setShowAddIssueForm(false);
   };
@@ -163,6 +169,38 @@ function App() {
                     type="text"
                     name="impact"
                     value={formData.impact}
+                    onChange={handleChange}
+                  />
+                </label>
+              </div>
+              <div>
+                <label>
+                  What are we trying?
+                  <input
+                    type="text"
+                    name="trying"
+                    value={formData.trying}
+                    onChange={handleChange}
+                  />
+                </label>
+              </div>
+              <div>
+                <label>
+                  Who is doing it?
+                  <input
+                    type="text"
+                    name="person"
+                    value={formData.person}
+                    onChange={handleChange}
+                  />
+                </label>
+              </div>
+              <div>
+                <label>
+                  Any additional Information?
+                  <textarea
+                    name="additionalInfo"
+                    value={formData.additionalInfo}
                     onChange={handleChange}
                   />
                 </label>
