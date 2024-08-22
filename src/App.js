@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Routes, Link, useLocation } from 'react-router-dom';
 import './App.css';
 import IssueCard from './IssueCard';
@@ -12,9 +12,9 @@ function App() {
     service: '',
     cause: '',
     impact: '',
-    trying: '',            // New Field: What are we trying?
-    person: '',            // New Field: Who is doing it?
-    additionalInfo: ''     // New Field: Any additional Information?
+    trying: '',            
+    person: '',            
+    additionalInfo: ''     
   });
 
   const [issues, setIssues] = useState([]);
@@ -22,7 +22,15 @@ function App() {
   const [editIndex, setEditIndex] = useState(null);
   const [showAddIssueForm, setShowAddIssueForm] = useState(false);
 
-  const location = useLocation(); // Hook to get current route
+  const location = useLocation(); 
+
+  // Fetch issues from the backend
+  useEffect(() => {
+    fetch('http://localhost:8000/issues')
+      .then(response => response.json())
+      .then(data => setIssues(data))
+      .catch(error => console.error('Error fetching issues:', error));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,22 +42,31 @@ function App() {
 
   const getCurrentDateTime = () => {
     const currentDate = new Date();
-    return currentDate.toLocaleString(); // Formats as 'MM/DD/YYYY, HH:MM:SS AM/PM'
+    return currentDate.toLocaleString(); 
   };
 
   const handleCreate = () => {
-    setIssues([...issues, formData]);
-    setFormData({
-      issue: '',
-      since: '',
-      service: '',
-      cause: '',
-      impact: '',
-      trying: '',          // Resetting new field
-      person: '',          // Resetting new field
-      additionalInfo: ''   // Resetting new field
-    });
-    setShowAddIssueForm(false);
+    fetch('http://localhost:8000/issues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    })
+      .then(response => response.json())
+      .then(newIssue => {
+        setIssues([...issues, newIssue]);
+        setFormData({
+          issue: '',
+          since: '',
+          service: '',
+          cause: '',
+          impact: '',
+          trying: '',
+          person: '',
+          additionalInfo: ''
+        });
+        setShowAddIssueForm(false);
+      })
+      .catch(error => console.error('Error creating issue:', error));
   };
 
   const handleCancel = () => {
@@ -59,9 +76,9 @@ function App() {
       service: '',
       cause: '',
       impact: '',
-      trying: '',          // Resetting new field
-      person: '',          // Resetting new field
-      additionalInfo: ''   // Resetting new field
+      trying: '',
+      person: '',
+      additionalInfo: ''
     });
     setShowAddIssueForm(false);
   };
@@ -71,16 +88,23 @@ function App() {
     if (!showAddIssueForm) {
       setFormData({
         ...formData,
-        since: getCurrentDateTime() // Auto-fill with current date and time
+        since: getCurrentDateTime()
       });
     }
   };
 
   const handleResolve = (index) => {
     const issueToResolve = issues[index];
-    const newIssues = issues.filter((_, i) => i !== index);
-    setIssues(newIssues);
-    setResolvedIssues([...resolvedIssues, issueToResolve]);
+
+    fetch(`http://localhost:8000/issues/${issueToResolve.id}`, {
+      method: 'DELETE',
+    })
+      .then(() => {
+        const newIssues = issues.filter((_, i) => i !== index);
+        setIssues(newIssues);
+        setResolvedIssues([...resolvedIssues, issueToResolve]);
+      })
+      .catch(error => console.error('Error resolving issue:', error));
   };
 
   const handleCloseIssue = (issueToClose) => {
@@ -88,7 +112,17 @@ function App() {
   };
 
   const handleUpdateIssue = (updatedIssue) => {
-    setIssues(issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue));
+    fetch(`http://localhost:8000/issues/${updatedIssue.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedIssue),
+    })
+      .then(response => response.json())
+      .then(() => {
+        setIssues(issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue));
+        setEditIndex(null);
+      })
+      .catch(error => console.error('Error updating issue:', error));
   };
 
   return (
@@ -103,7 +137,6 @@ function App() {
         </nav>
       </header>
       <main>
-        {/* Conditionally render "Add New Issue" button */}
         {location.pathname !== '/' && location.pathname !== '/resolved-issues' && (
           <button 
             className="toggle-form-button" 
@@ -134,9 +167,9 @@ function App() {
                   <input
                     type="text"
                     name="since"
-                    value={formData.since} // Auto-filled with current date and time
+                    value={formData.since}
                     onChange={handleChange}
-                    readOnly // Make this field read-only if you want to prevent manual changes
+                    readOnly 
                   />
                 </label>
               </div>
@@ -228,7 +261,7 @@ function App() {
                             key={index}
                             issue={issue}
                             onSave={(updatedIssue) => handleUpdateIssue(updatedIssue)}
-                            onCancel={() => setEditIndex(null)} // Close the form without saving
+                            onCancel={() => setEditIndex(null)}
                           />
                         ) : (
                           <IssueCard
@@ -271,9 +304,6 @@ function App() {
               </div>
             )
           } />
-
-          {/* Default Route */}
-          <Route path="/" element={<Home />} />
         </Routes>
       </main>
     </div>

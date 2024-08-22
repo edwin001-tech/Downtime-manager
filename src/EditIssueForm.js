@@ -2,104 +2,127 @@ import React, { useState } from 'react';
 import './EditIssueForm.css';
 
 const EditIssueForm = ({ issue, onSave, onCancel }) => {
-  const [updatedIssue, setUpdatedIssue] = useState(issue);
+  const [formData, setFormData] = useState({
+    id: issue.id,
+    issue: issue.issue,
+    since: issue.since,
+    service: issue.service,
+    cause: issue.cause,
+    impact: issue.impact,
+    trying: issue.trying,
+    person: issue.person,
+    additionalInfo: issue.additionalInfo
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUpdatedIssue({ ...updatedIssue, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: value
+    });
   };
 
   const handleSave = () => {
-    onSave(updatedIssue);
+    onSave(formData);
   };
 
   return (
     <div className="edit-issue-form">
-      <h3>Edit Issue</h3>
-      
-      <label>
-        Incident:
-        <input
-          name="issue"
-          value={updatedIssue.issue}
-          onChange={handleChange}
-          placeholder="Incident"
-        />
-      </label>
-
-      <label>
-        Since:
-        <input
-          name="since"
-          value={updatedIssue.since}
-          onChange={handleChange}
-          placeholder="Since"
-        />
-      </label>
-
-      <label>
-        Affected Service:
-        <input
-          name="service"
-          value={updatedIssue.service}
-          onChange={handleChange}
-          placeholder="Affected Service"
-        />
-      </label>
-
-      <label>
-        Cause:
-        <input
-          name="cause"
-          value={updatedIssue.cause}
-          onChange={handleChange}
-          placeholder="Cause"
-        />
-      </label>
-
-      <label>
-        Impact:
-        <input
-          name="impact"
-          value={updatedIssue.impact}
-          onChange={handleChange}
-          placeholder="Impact"
-        />
-      </label>
-
-      {/* New Fields Added */}
-      <label>
-        What are we trying?
-        <input
-          name="trying"
-          value={updatedIssue.trying || ''}
-          onChange={handleChange}
-          placeholder="What are we trying?"
-        />
-      </label>
-
-      <label>
-        Who is doing it?
-        <input
-          name="person"
-          value={updatedIssue.person || ''}
-          onChange={handleChange}
-          placeholder="Who is doing it?"
-        />
-      </label>
-
-      <label>
-        Any additional Information?
-        <input
-          name="additionalInfo"
-          value={updatedIssue.additionalInfo || ''}
-          onChange={handleChange}
-          placeholder="Any additional Information?"
-        />
-      </label>
-
-      <button onClick={handleSave}>Save</button>
-      <button onClick={onCancel}>Cancel</button>
+      <h2>Edit Issue</h2>
+      <form>
+        <div>
+          <label>
+            What is wrong?
+            <input
+              type="text"
+              name="issue"
+              value={formData.issue}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Since When?
+            <input
+              type="text"
+              name="since"
+              value={formData.since}
+              onChange={handleChange}
+              readOnly
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Affected service?
+            <input
+              type="text"
+              name="service"
+              value={formData.service}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Cause?
+            <input
+              type="text"
+              name="cause"
+              value={formData.cause}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Impact?
+            <input
+              type="text"
+              name="impact"
+              value={formData.impact}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            What are we trying?
+            <input
+              type="text"
+              name="trying"
+              value={formData.trying}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Who is doing it?
+            <input
+              type="text"
+              name="person"
+              value={formData.person}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Any additional Information?
+            <textarea
+              name="additionalInfo"
+              value={formData.additionalInfo}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+        <div>
+          <button type="button" onClick={handleSave}>Save</button>
+          <button type="button" onClick={onCancel}>Cancel</button>
+        </div>
+      </form>
     </div>
   );
 };
