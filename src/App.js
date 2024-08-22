@@ -27,8 +27,19 @@ function App() {
   // Fetch issues from the backend
   useEffect(() => {
     fetch('http://localhost:8000/issues')
-      .then(response => response.json())
-      .then(data => setIssues(data))
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Separate ongoing and resolved issues
+        const ongoing = data.filter(issue => issue.status === "ongoing");
+        const resolved = data.filter(issue => issue.status === "resolved");
+        setIssues(ongoing);
+        setResolvedIssues(resolved);
+      })
       .catch(error => console.error('Error fetching issues:', error));
   }, []);
 
@@ -102,13 +113,9 @@ function App() {
       .then(() => {
         const newIssues = issues.filter((_, i) => i !== index);
         setIssues(newIssues);
-        setResolvedIssues([...resolvedIssues, issueToResolve]);
+        setResolvedIssues([...resolvedIssues, { ...issueToResolve, status: "resolved" }]);
       })
       .catch(error => console.error('Error resolving issue:', error));
-  };
-
-  const handleCloseIssue = (issueToClose) => {
-    setResolvedIssues(resolvedIssues.filter(issue => issue !== issueToClose));
   };
 
   const handleUpdateIssue = (updatedIssue) => {
@@ -293,7 +300,6 @@ function App() {
                           key={index}
                           issue={issue}
                           isResolved={true}
-                          onClose={handleCloseIssue}
                         />
                       ))}
                     </div>

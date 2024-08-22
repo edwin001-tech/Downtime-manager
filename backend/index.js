@@ -28,7 +28,7 @@ connection.connect((err) => {
 
 // Routes
 
-// Get all issues
+// Get all issues (both ongoing and resolved)
 app.get('/issues', (req, res) => {
   const query = 'SELECT * FROM issues';
   connection.query(query, (err, results) => {
@@ -44,13 +44,13 @@ app.get('/issues', (req, res) => {
 // Create a new issue
 app.post('/issues', (req, res) => {
   const { issue, since, service, cause, impact, trying, person, additionalInfo } = req.body;
-  const query = 'INSERT INTO issues (issue, since, service, cause, impact, trying, person, additionalInfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO issues (issue, since, service, cause, impact, trying, person, additionalInfo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, "ongoing")';
   connection.query(query, [issue, since, service, cause, impact, trying, person, additionalInfo], (err, result) => {
     if (err) {
       console.error('Error creating issue:', err);
       res.status(500).json({ error: 'Failed to create issue' });
     } else {
-      res.status(201).json({ id: result.insertId, ...req.body });
+      res.status(201).json({ id: result.insertId, ...req.body, status: "ongoing" });
     }
   });
 });
@@ -70,16 +70,29 @@ app.put('/issues/:id', (req, res) => {
   });
 });
 
-// Resolve an issue
+// Resolve an issue (change its status instead of deleting it)
 app.delete('/issues/:id', (req, res) => {
   const { id } = req.params;
-  const query = 'DELETE FROM issues WHERE id = ?';
+  const query = 'UPDATE issues SET status = "resolved" WHERE id = ?';
   connection.query(query, [id], (err) => {
     if (err) {
       console.error('Error resolving issue:', err);
       res.status(500).json({ error: 'Failed to resolve issue' });
     } else {
       res.status(204).send();
+    }
+  });
+});
+
+// Retrieve resolved issues separately
+app.get('/resolved-issues', (req, res) => {
+  const query = 'SELECT * FROM issues WHERE status = "resolved"';
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching resolved issues:', err);
+      res.status(500).json({ error: 'Failed to fetch resolved issues' });
+    } else {
+      res.json(results);
     }
   });
 });
