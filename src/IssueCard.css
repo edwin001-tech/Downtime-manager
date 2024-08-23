@@ -9,44 +9,40 @@
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
   background-color: #fff;
   box-sizing: border-box;
-  }
-  
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: right;
-  }
-  
-  .card-buttons {
-    display: flex;
-    gap: 5px;
-  }
-  
-  .card-buttons button {
-    background-color: #007bff;
-    border: none;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .card-buttons button:hover {
-    background-color: #0056b3;
-  }
-  
-  .action-button {
-    background-color: #28a745;
-    border: none;
-    color: white;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 20px;
-  }
-  
-  .action-button:hover {
-    background-color: #218838;
-  }
-  
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Align items centrally */
+}
+
+.card-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.card-buttons button {
+  background-color: transparent;
+  border: none;
+  color: #333;
+  font-size: 20px; /* Adjust size as needed */
+  cursor: pointer;
+}
+
+.card-buttons button:hover {
+  color: #007bff; /* Change color on hover */
+}
+
+.close-button {
+  color: red;
+}
+
+.resolve-button {
+  color: green;
+}
+
+.copy-button {
+  color: #ffcc00; /* Yellow color for copy */
+}
+

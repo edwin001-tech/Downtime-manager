@@ -1,33 +1,59 @@
 import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faCopy, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import './IssueCard.css';
 import EditIssueForm from './EditIssueForm';
 
 const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => {
   const [showEditForm, setShowEditForm] = useState(false);
 
+   // Function to copy issue to clipboard
+   const copyToClipboard = () => {
+    const issueText = `
+      Issue: ${issue.issue}
+      Since: ${issue.since}
+      Affected Service: ${issue.service}
+      Cause: ${issue.cause}
+      Impact: ${issue.impact}
+      What are we trying?: ${issue.trying}
+      Who is doing it?: ${issue.person}
+      Additional Information: ${issue.additionalInfo}
+    `;
+    navigator.clipboard.writeText(issueText).then(() => {
+      alert('Issue copied to clipboard');
+    });
+  };
+
   return (
     <div className="card">
       <div className="card-header">
         <h3>{issue.issue}</h3>
         <div className="card-buttons">
-          {/* Edit button for ongoing issues */}
+          {/* Edit icon for ongoing issues */}
           {!isResolved && (
-            <button onClick={() => setShowEditForm(true)}>Edit</button>
+            <button onClick={() => setShowEditForm(true)} title="Edit">
+              <FontAwesomeIcon icon={faEdit} />
+            </button>
           )}
 
-          {/* Close button for resolved issues */}
+          {/* Close icon for resolved issues */}
           {isResolved && onClose && (
-            <button className="close-button" onClick={() => onClose(issue)}>
-              Close
+            <button className="close-button" onClick={() => onClose(issue)} title="Close">
+              <FontAwesomeIcon icon={faTimesCircle} />
             </button>
           )}
 
-          {/* Resolve button for ongoing issues */}
+          {/* Resolve icon for ongoing issues */}
           {!isResolved && onResolve && (
-            <button className="resolve-button" onClick={onResolve}>
-              Resolve
+            <button className="resolve-button" onClick={onResolve} title="Resolve">
+              <FontAwesomeIcon icon={faCheckCircle} />
             </button>
           )}
+
+          {/* Copy button */}
+          <button className="copy-button" onClick={copyToClipboard} title="Copy">
+            <FontAwesomeIcon icon={faCopy} />
+          </button>
         </div>
       </div>
 
