@@ -97,6 +97,52 @@ app.get('/resolved-issues', (req, res) => {
   });
 });
 
+// Search for issues
+// app.get('/search', (req, res) => {
+//     const searchTerm = req.query.q;
+//     const query = `
+//       SELECT * FROM issues 
+//       WHERE issue LIKE ? OR service LIKE ? OR cause LIKE ? OR impact LIKE ? OR trying LIKE ? OR person LIKE ? OR additionalInfo LIKE ?
+//     `;
+//     const wildcardTerm = `%${searchTerm}%`;
+//     connection.query(query, [wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm], (err, results) => {
+//       if (err) {
+//         console.error('Error searching issues:', err);
+//         res.status(500).json({ error: 'Failed to search issues' });
+//       } else {
+//         res.json(results);
+//       }
+//     });
+//   });
+
+
+// Search for issues
+app.get('/search', (req, res) => {
+  const searchTerm = req.query.q;
+
+  // Log the search term for debugging
+  console.log('Search Term:', searchTerm);
+
+  const query = `
+    SELECT * FROM issues 
+    WHERE LOWER(issue) LIKE LOWER(?) OR LOWER(service) LIKE LOWER(?) OR LOWER(cause) LIKE LOWER(?) 
+    OR LOWER(impact) LIKE LOWER(?) OR LOWER(trying) LIKE LOWER(?) OR LOWER(person) LIKE LOWER(?) 
+    OR LOWER(additionalInfo) LIKE LOWER(?)
+  `;
+  const wildcardTerm = `%${searchTerm}%`;
+  connection.query(query, [wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm], (err, results) => {
+    if (err) {
+      console.error('Error searching issues:', err);
+      res.status(500).json({ error: 'Failed to search issues' });
+    } else {
+      console.log('Search Results:', results); // Log results for debugging
+      res.json(results);
+    }
+  });
+});
+
+  
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

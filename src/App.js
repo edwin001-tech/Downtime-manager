@@ -22,10 +22,14 @@ function App() {
   const [editIndex, setEditIndex] = useState(null);
   const [showAddIssueForm, setShowAddIssueForm] = useState(false);
 
-  const location = useLocation(); 
+  const location = useLocation();
 
   // Fetch issues from the backend
   useEffect(() => {
+    fetchIssues();
+  }, []);
+
+  const fetchIssues = () => {
     fetch('http://localhost:8000/issues')
       .then(response => {
         if (!response.ok) {
@@ -41,7 +45,25 @@ function App() {
         setResolvedIssues(resolved);
       })
       .catch(error => console.error('Error fetching issues:', error));
-  }, []);
+  };
+
+  const handleSearch = (searchTerm) => {
+    if (searchTerm.trim() === '') {
+      fetchIssues();
+      return;
+    }
+
+    fetch(`http://localhost:8000/search?q=${encodeURIComponent(searchTerm)}`)
+      .then(response => response.json())
+      .then(data => {
+        const ongoing = data.filter(issue => issue.status === "ongoing");
+        const resolved = data.filter(issue => issue.status === "resolved");
+        setIssues(ongoing);
+        setResolvedIssues(resolved);
+      })
+      .catch(error => console.error('Error searching issues:', error));
+  };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -141,9 +163,18 @@ function App() {
             <li><Link to="/ongoing-issues">Ongoing Issues</Link></li>
             <li><Link to="/resolved-issues">Resolved Issues</Link></li>
           </ul>
+          <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search issues..."
+            
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+        </div>
         </nav>
       </header>
       <main>
+      
         {location.pathname !== '/' && location.pathname !== '/resolved-issues' && (
           <button 
             className="toggle-form-button" 

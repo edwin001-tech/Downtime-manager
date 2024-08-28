@@ -73,8 +73,6 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => 
       <p><strong>Affected Service:</strong> {issue.service}</p>
       <p><strong>Cause:</strong> {issue.cause}</p>
       <p><strong>Impact:</strong> {issue.impact}</p>
-
-      {/* New fields added directly to the Issue Form */}
       <p><strong>What are we trying?:</strong> {issue.trying}</p>
       <p><strong>Who is doing it?:</strong> {issue.person}</p>
       <p><strong>Any additional Information?:</strong> {issue.additionalInfo}</p>
