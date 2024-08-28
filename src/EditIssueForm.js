@@ -32,7 +32,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
       <form>
         <div>
           <label>
-            What is wrong?
+            Description
             <input
               type="text"
               name="issue"
@@ -99,7 +99,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <label>
-            Who is doing it?
+            Systems Admin
             <input
               type="text"
               name="person"

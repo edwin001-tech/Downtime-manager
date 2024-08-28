@@ -7,16 +7,16 @@ const Home = () => {
     <div className="home-container">
       <h1>Welcome!</h1>
       <p>
-        This Incident Commander tool helps you keep track of everything that's going on when you're managing an incident including:
+        This Incident tool helps you keep track of everything that's going on when you're managing an incident including:
       </p>
       <ul>
-        <li>Keeping track of all the current issues affecting your systems</li>
+        <li>Keeping track of all the current issues affecting the systems</li>
         <li>Managing a list of actions per issue</li>
-        <li>Keeping track of a timeline of notes for each action</li>
-        <li>Tracking who is working on what action(s)</li>
-        <li>Reminding you when to ask for updates from people</li>
+        <li>Separate ongoing issues from resolved issues</li>
+        <li>Tracking who is working on what issue(s)</li>
+        <li>Edit issues where there are updates</li>
         <li>Making it easy to copy business & tech summaries to your clipboard so you can keep others updated</li>
-        <li>Providing a shared notes area for free-form (also multiplayer-compatible) organization and collaboration</li>
+        <li>Issues and their status(resolved/ongoing) are persisted in the database</li>
       </ul>
       <div className="home-footer">
         <Link to="/ongoing-issues">

@@ -162,8 +162,7 @@ function App() {
             <li><Link to="/">Home</Link></li>
             <li><Link to="/ongoing-issues">Ongoing Issues</Link></li>
             <li><Link to="/resolved-issues">Resolved Issues</Link></li>
-          </ul>
-          <div className="search-bar">
+            <div className="search-bar">
           <input
             type="text"
             placeholder="Search issues..."
@@ -171,6 +170,8 @@ function App() {
             onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
+          </ul>
+          
         </nav>
       </header>
       <main>
@@ -190,7 +191,7 @@ function App() {
             <form>
               <div>
                 <label>
-                  What is wrong?
+                  Description?
                   <input
                     type="text"
                     name="issue"
@@ -257,7 +258,7 @@ function App() {
               </div>
               <div>
                 <label>
-                  Who is doing it?
+                  Systems Admin?
                   <input
                     type="text"
                     name="person"

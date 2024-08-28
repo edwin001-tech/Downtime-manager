@@ -10,8 +10,9 @@
 /* Header styling */
 .App-header {
   background-color: #282c34;
-  padding: 20px;
+  padding: 10px;
   color: white;
+
 }
 
 /* Navigation styles */
@@ -24,15 +25,17 @@
 }
 
 .App-header ul li {
-  display: inline;
+  display: block;
   margin: 0 15px;
   cursor: pointer;
+  
 }
 
 .App-header ul li a {
   color: white;
   text-decoration: none;
   font-weight: bold;
+  font-size: medium;
 }
 
 .App-header ul li a:hover {
@@ -44,11 +47,12 @@
   display: flex;
   justify-content: flex-end;
   flex-grow: 1;
+  
 }
 
 .search-bar input[type="text"] {
-  width: 250px;
-  padding: 8px;
+  width: 200px;
+  padding: 6px;
   border: none;
   border-radius: 4px;
   margin-left: 20px;
@@ -131,8 +135,7 @@ button:hover {
   color: #333;
 }
 
-.search-bar {
-  margin-bottom: 20px;
-}
+
+
 
 
