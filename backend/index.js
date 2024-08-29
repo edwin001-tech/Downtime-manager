@@ -28,16 +28,33 @@ connection.connect((err) => {
 
 // Routes
 
-// Get all issues (both ongoing and resolved)
+// Get all issues (both ongoing and resolved) with pagination
 app.get('/issues', (req, res) => {
-  const query = 'SELECT * FROM issues';
-  connection.query(query, (err, results) => {
+  const limit = parseInt(req.query.limit) || 6; // default limit to 6
+  const offset = parseInt(req.query.offset) || 0; // default offset to 0
+
+  const query = 'SELECT SQL_CALC_FOUND_ROWS * FROM issues LIMIT ? OFFSET ?';
+  const countQuery = 'SELECT FOUND_ROWS() as total';
+
+  connection.query(query, [limit, offset], (err, results) => {
     if (err) {
       console.error('Error fetching issues:', err);
       res.status(500).json({ error: 'Failed to fetch issues' });
-    } else {
-      res.json(results);
+      return;
     }
+
+    connection.query(countQuery, (err, countResults) => {
+      if (err) {
+        console.error('Error fetching total issue count:', err);
+        res.status(500).json({ error: 'Failed to fetch total issue count' });
+        return;
+      }
+
+      res.json({
+        issues: results,
+        totalIssues: countResults[0].total,
+      });
+    });
   });
 });
 
@@ -84,64 +101,73 @@ app.delete('/issues/:id', (req, res) => {
   });
 });
 
-// Retrieve resolved issues separately
+// Retrieve resolved issues separately with pagination
 app.get('/resolved-issues', (req, res) => {
-  const query = 'SELECT * FROM issues WHERE status = "resolved"';
-  connection.query(query, (err, results) => {
+  const limit = parseInt(req.query.limit) || 6;
+  const offset = parseInt(req.query.offset) || 0;
+
+  const query = 'SELECT SQL_CALC_FOUND_ROWS * FROM issues WHERE status = "resolved" LIMIT ? OFFSET ?';
+  const countQuery = 'SELECT FOUND_ROWS() as total';
+
+  connection.query(query, [limit, offset], (err, results) => {
     if (err) {
       console.error('Error fetching resolved issues:', err);
       res.status(500).json({ error: 'Failed to fetch resolved issues' });
-    } else {
-      res.json(results);
+      return;
     }
+
+    connection.query(countQuery, (err, countResults) => {
+      if (err) {
+        console.error('Error fetching total resolved issue count:', err);
+        res.status(500).json({ error: 'Failed to fetch total resolved issue count' });
+        return;
+      }
+
+      res.json({
+        issues: results,
+        totalIssues: countResults[0].total,
+      });
+    });
   });
 });
 
-// Search for issues
-// app.get('/search', (req, res) => {
-//     const searchTerm = req.query.q;
-//     const query = `
-//       SELECT * FROM issues 
-//       WHERE issue LIKE ? OR service LIKE ? OR cause LIKE ? OR impact LIKE ? OR trying LIKE ? OR person LIKE ? OR additionalInfo LIKE ?
-//     `;
-//     const wildcardTerm = `%${searchTerm}%`;
-//     connection.query(query, [wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm], (err, results) => {
-//       if (err) {
-//         console.error('Error searching issues:', err);
-//         res.status(500).json({ error: 'Failed to search issues' });
-//       } else {
-//         res.json(results);
-//       }
-//     });
-//   });
-
-
-// Search for issues
+// Search for issues with pagination
 app.get('/search', (req, res) => {
   const searchTerm = req.query.q;
-
-  // Log the search term for debugging
-  console.log('Search Term:', searchTerm);
+  const limit = parseInt(req.query.limit) || 6;
+  const offset = parseInt(req.query.offset) || 0;
 
   const query = `
-    SELECT * FROM issues 
+    SELECT SQL_CALC_FOUND_ROWS * FROM issues 
     WHERE LOWER(issue) LIKE LOWER(?) OR LOWER(service) LIKE LOWER(?) OR LOWER(cause) LIKE LOWER(?) 
     OR LOWER(impact) LIKE LOWER(?) OR LOWER(trying) LIKE LOWER(?) OR LOWER(person) LIKE LOWER(?) 
     OR LOWER(additionalInfo) LIKE LOWER(?)
+    LIMIT ? OFFSET ?
   `;
+  const countQuery = 'SELECT FOUND_ROWS() as total';
   const wildcardTerm = `%${searchTerm}%`;
-  connection.query(query, [wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm], (err, results) => {
+
+  connection.query(query, [wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, limit, offset], (err, results) => {
     if (err) {
       console.error('Error searching issues:', err);
       res.status(500).json({ error: 'Failed to search issues' });
-    } else {
-      console.log('Search Results:', results); // Log results for debugging
-      res.json(results);
+      return;
     }
+
+    connection.query(countQuery, (err, countResults) => {
+      if (err) {
+        console.error('Error fetching total search results count:', err);
+        res.status(500).json({ error: 'Failed to fetch total search results count' });
+        return;
+      }
+
+      res.json({
+        issues: results,
+        totalIssues: countResults[0].total,
+      });
+    });
   });
 });
-
-  
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

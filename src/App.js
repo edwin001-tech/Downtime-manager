@@ -21,28 +21,27 @@ function App() {
   const [resolvedIssues, setResolvedIssues] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [showAddIssueForm, setShowAddIssueForm] = useState(false);
+  const [limit] = useState(6); // items per page
+  const [offset, setOffset] = useState(0); // current offset
+  const [totalIssues, setTotalIssues] = useState(0); // total issues count
 
   const location = useLocation();
 
   // Fetch issues from the backend
   useEffect(() => {
     fetchIssues();
-  }, []);
+  }, [offset]);
 
   const fetchIssues = () => {
-    fetch('http://localhost:8000/issues')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-      })
+    fetch(`http://localhost:8000/issues?limit=${limit}&offset=${offset}`)
+      .then(response => response.json())
       .then(data => {
-        // Separate ongoing and resolved issues
         const ongoing = data.filter(issue => issue.status === "ongoing");
         const resolved = data.filter(issue => issue.status === "resolved");
         setIssues(ongoing);
         setResolvedIssues(resolved);
+        // Assume backend sends total count of issues
+        setTotalIssues(data.totalIssues);
       })
       .catch(error => console.error('Error fetching issues:', error));
   };
@@ -53,15 +52,24 @@ function App() {
       return;
     }
 
-    fetch(`http://localhost:8000/search?q=${encodeURIComponent(searchTerm)}`)
+    fetch(`http://localhost:8000/search?q=${encodeURIComponent(searchTerm)}&limit=${limit}&offset=${offset}`)
       .then(response => response.json())
       .then(data => {
         const ongoing = data.filter(issue => issue.status === "ongoing");
         const resolved = data.filter(issue => issue.status === "resolved");
         setIssues(ongoing);
         setResolvedIssues(resolved);
+        setTotalIssues(data.totalIssues);
       })
       .catch(error => console.error('Error searching issues:', error));
+  };
+
+  const handleNextPage = () => {
+    setOffset(offset + limit);
+  };
+
+  const handlePreviousPage = () => {
+    setOffset(Math.max(0, offset - limit));
   };
   
 
@@ -343,6 +351,14 @@ function App() {
             )
           } />
         </Routes>
+        <div className="pagination">
+          <button onClick={handlePreviousPage} disabled={offset === 0}>
+            Previous
+          </button>
+          <button onClick={handleNextPage} disabled={offset + limit >= totalIssues}>
+            Next
+          </button>
+        </div>
       </main>
     </div>
   );
