@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Route, Routes, Link, useLocation } from 'react-router-dom';
 import './App.css';
 import IssueCard from './IssueCard';
@@ -28,23 +28,25 @@ function App() {
   const location = useLocation();
 
   // Fetch issues from the backend
-  useEffect(() => {
-    fetchIssues();
-  }, [offset]);
+  
 
-  const fetchIssues = () => {
+  const fetchIssues = useCallback(() => {
     fetch(`http://localhost:8000/issues?limit=${limit}&offset=${offset}`)
       .then(response => response.json())
       .then(data => {
-        const ongoing = data.filter(issue => issue.status === "ongoing");
-        const resolved = data.filter(issue => issue.status === "resolved");
+        const ongoing = data.issues.filter(issue => issue.status === "ongoing");
+        const resolved = data.issues.filter(issue => issue.status === "resolved");
         setIssues(ongoing);
         setResolvedIssues(resolved);
-        // Assume backend sends total count of issues
         setTotalIssues(data.totalIssues);
       })
       .catch(error => console.error('Error fetching issues:', error));
-  };
+  }, [limit, offset]);
+
+
+  useEffect(() => {
+    fetchIssues();
+  }, [fetchIssues]);
 
   const handleSearch = (searchTerm) => {
     if (searchTerm.trim() === '') {
