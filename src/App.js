@@ -12,9 +12,9 @@ function App() {
     service: '',
     cause: '',
     impact: '',
-    trying: '',            
-    person: '',            
-    additionalInfo: ''     
+    trying: '',
+    person: '',
+    additionalInfo: ''
   });
 
   const [issues, setIssues] = useState([]);
@@ -26,9 +26,6 @@ function App() {
   const [totalIssues, setTotalIssues] = useState(0); // total issues count
 
   const location = useLocation();
-
-  // Fetch issues from the backend
-  
 
   const fetchIssues = useCallback(() => {
     fetch(`http://localhost:8000/issues?limit=${limit}&offset=${offset}`)
@@ -42,7 +39,6 @@ function App() {
       })
       .catch(error => console.error('Error fetching issues:', error));
   }, [limit, offset]);
-
 
   useEffect(() => {
     fetchIssues();
@@ -73,7 +69,6 @@ function App() {
   const handlePreviousPage = () => {
     setOffset(Math.max(0, offset - limit));
   };
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,7 +80,7 @@ function App() {
 
   const getCurrentDateTime = () => {
     const currentDate = new Date();
-    return currentDate.toLocaleString(); 
+    return currentDate.toLocaleString();
   };
 
   const handleCreate = () => {
@@ -173,22 +168,20 @@ function App() {
             <li><Link to="/ongoing-issues">Ongoing Issues</Link></li>
             <li><Link to="/resolved-issues">Resolved Issues</Link></li>
             <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Search issues..."
-            
-            onChange={(e) => handleSearch(e.target.value)}
-          />
-        </div>
+              <input
+                type="text"
+                placeholder="Search issues..."
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+            </div>
           </ul>
-          
         </nav>
       </header>
       <main>
-      
+
         {location.pathname !== '/' && location.pathname !== '/resolved-issues' && (
-          <button 
-            className="toggle-form-button" 
+          <button
+            className="toggle-form-button"
             onClick={handleAddIssueFormToggle}
           >
             {showAddIssueForm ? 'Close Add Issue Form' : 'Add New Issue'}
@@ -218,7 +211,7 @@ function App() {
                     name="since"
                     value={formData.since}
                     onChange={handleChange}
-                    readOnly 
+                    readOnly
                   />
                 </label>
               </div>
@@ -316,8 +309,8 @@ function App() {
                           <IssueCard
                             key={index}
                             issue={issue}
+                            onEdit={() => setEditIndex(index)}
                             onResolve={() => handleResolve(index)}
-                            onUpdateIssue={handleUpdateIssue}
                           />
                         )
                       )}
@@ -329,38 +322,41 @@ function App() {
               </div>
             )
           } />
-
           <Route path="/resolved-issues" element={
-            !showAddIssueForm && (
-              <div className="resolved-container">
-                {resolvedIssues.length > 0 ? (
-                  <>
-                    <h2>Resolved Issues</h2>
-                    <div className="issue-list">
-                      {resolvedIssues.map((issue, index) => (
-                        <IssueCard
-                          key={index}
-                          issue={issue}
-                          isResolved={true}
-                        />
-                      ))}
+            <div className="issues-container">
+              <h2>Resolved Issues</h2>
+              {resolvedIssues.length > 0 ? (
+                <>
+                  <div className="issue-list">
+                    {resolvedIssues.map((issue, index) => (
+                      <IssueCard
+                        key={index}
+                        issue={issue}
+                        isResolved={true}
+                      />
+                    ))}
+                  </div>
+
+                  {totalIssues > limit && (
+                    <div className="pagination">
+                      <button onClick={handlePreviousPage} disabled={offset === 0}>
+                        Previous
+                      </button>
+                      <button
+                        onClick={handleNextPage}
+                        disabled={offset + limit >= totalIssues}
+                      >
+                        Next
+                      </button>
                     </div>
-                  </>
-                ) : (
-                  <p>No resolved issues.</p>
-                )}
-              </div>
-            )
+                  )}
+                </>
+              ) : (
+                <p>No resolved issues.</p>
+              )}
+            </div>
           } />
         </Routes>
-        <div className="pagination">
-          <button onClick={handlePreviousPage} disabled={offset === 0}>
-            Previous
-          </button>
-          <button onClick={handleNextPage} disabled={offset + limit >= totalIssues}>
-            Next
-          </button>
-        </div>
       </main>
     </div>
   );

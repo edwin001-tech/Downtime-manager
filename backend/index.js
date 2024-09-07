@@ -131,6 +131,38 @@ app.get('/resolved-issues', (req, res) => {
   });
 });
 
+
+// Retrieve ongoing issues separately with pagination
+app.get('/ongoing-issues', (req, res) => {
+  const limit = parseInt(req.query.limit) || 6;
+  const offset = parseInt(req.query.offset) || 0;
+
+  const query = 'SELECT SQL_CALC_FOUND_ROWS * FROM issues WHERE status = "ongoing" LIMIT ? OFFSET ?';
+  const countQuery = 'SELECT FOUND_ROWS() as total';
+
+  connection.query(query, [limit, offset], (err, results) => {
+    if (err) {
+      console.error('Error fetching ongoing issues:', err);
+      res.status(500).json({ error: 'Failed to fetch ongoing issues' });
+      return;
+    }
+
+    connection.query(countQuery, (err, countResults) => {
+      if (err) {
+        console.error('Error fetching total ongoing issue count:', err);
+        res.status(500).json({ error: 'Failed to fetch total ongoing issue count' });
+        return;
+      }
+
+      res.json({
+        issues: results,
+        totalIssues: countResults[0].total,
+      });
+    });
+  });
+});
+
+
 // Search for issues with pagination
 app.get('/search', (req, res) => {
   const searchTerm = req.query.q;
