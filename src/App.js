@@ -21,53 +21,91 @@ function App() {
   const [resolvedIssues, setResolvedIssues] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [showAddIssueForm, setShowAddIssueForm] = useState(false);
+  
   const [limit] = useState(6); // items per page
-  const [offset, setOffset] = useState(0); // current offset
-  const [totalIssues, setTotalIssues] = useState(0); // total issues count
+
+  // Ongoing issues pagination state
+  const [ongoingOffset, setOngoingOffset] = useState(0); 
+  const [totalOngoingIssues, setTotalOngoingIssues] = useState(0);
+
+  // Resolved issues pagination state
+  const [resolvedOffset, setResolvedOffset] = useState(0);
+  const [totalResolvedIssues, setTotalResolvedIssues] = useState(0);
 
   const location = useLocation();
 
-  const fetchIssues = useCallback(() => {
-    fetch(`http://localhost:8000/issues?limit=${limit}&offset=${offset}`)
+  // Fetch ongoing issues
+  const fetchOngoingIssues = useCallback(() => {
+    fetch(`http://localhost:8000/ongoing-issues?limit=${limit}&offset=${ongoingOffset}`)
+      .then(response => response.json())
+      .then(data => {
+        setIssues(data.issues);
+        setTotalOngoingIssues(data.totalIssues);
+        // Reset offset if necessary
+        if (ongoingOffset >= data.totalIssues) {
+          setOngoingOffset(0);
+        }
+      })
+      .catch(error => console.error('Error fetching ongoing issues:', error));
+  }, [limit, ongoingOffset]);
+
+  // Fetch resolved issues
+  const fetchResolvedIssues = useCallback(() => {
+    fetch(`http://localhost:8000/resolved-issues?limit=${limit}&offset=${resolvedOffset}`)
+      .then(response => response.json())
+      .then(data => {
+        setResolvedIssues(data.issues);
+        setTotalResolvedIssues(data.totalIssues);
+        // Reset offset if necessary
+        if (resolvedOffset >= data.totalIssues) {
+          setResolvedOffset(0);
+        }
+      })
+      .catch(error => console.error('Error fetching resolved issues:', error));
+  }, [limit, resolvedOffset]);
+
+  useEffect(() => {
+    fetchOngoingIssues();
+    fetchResolvedIssues();
+  }, [fetchOngoingIssues, fetchResolvedIssues]);
+
+  // Handle pagination for ongoing issues
+  const handleNextOngoingPage = () => {
+    setOngoingOffset(prev => prev + limit);
+  };
+
+  const handlePreviousOngoingPage = () => {
+    setOngoingOffset(prev => Math.max(0, prev - limit));
+  };
+
+  // Handle pagination for resolved issues
+  const handleNextResolvedPage = () => {
+    setResolvedOffset(prev => prev + limit);
+  };
+
+  const handlePreviousResolvedPage = () => {
+    setResolvedOffset(prev => Math.max(0, prev - limit));
+  };
+
+  // Handle search functionality
+  const handleSearch = (searchTerm) => {
+    if (searchTerm.trim() === '') {
+      fetchOngoingIssues();
+      fetchResolvedIssues();
+      return;
+    }
+
+    fetch(`http://localhost:8000/search?q=${encodeURIComponent(searchTerm)}&limit=${limit}`)
       .then(response => response.json())
       .then(data => {
         const ongoing = data.issues.filter(issue => issue.status === "ongoing");
         const resolved = data.issues.filter(issue => issue.status === "resolved");
         setIssues(ongoing);
         setResolvedIssues(resolved);
-        setTotalIssues(data.totalIssues);
-      })
-      .catch(error => console.error('Error fetching issues:', error));
-  }, [limit, offset]);
-
-  useEffect(() => {
-    fetchIssues();
-  }, [fetchIssues]);
-
-  const handleSearch = (searchTerm) => {
-    if (searchTerm.trim() === '') {
-      fetchIssues();
-      return;
-    }
-
-    fetch(`http://localhost:8000/search?q=${encodeURIComponent(searchTerm)}&limit=${limit}&offset=${offset}`)
-      .then(response => response.json())
-      .then(data => {
-        const ongoing = data.filter(issue => issue.status === "ongoing");
-        const resolved = data.filter(issue => issue.status === "resolved");
-        setIssues(ongoing);
-        setResolvedIssues(resolved);
-        setTotalIssues(data.totalIssues);
+        setTotalOngoingIssues(ongoing.length);
+        setTotalResolvedIssues(resolved.length);
       })
       .catch(error => console.error('Error searching issues:', error));
-  };
-
-  const handleNextPage = () => {
-    setOffset(offset + limit);
-  };
-
-  const handlePreviousPage = () => {
-    setOffset(Math.max(0, offset - limit));
   };
 
   const handleChange = (e) => {
@@ -131,11 +169,12 @@ function App() {
     }
   };
 
+  // Resolving an issue (PUT request instead of DELETE)
   const handleResolve = (index) => {
     const issueToResolve = issues[index];
 
-    fetch(`http://localhost:8000/issues/${issueToResolve.id}`, {
-      method: 'DELETE',
+    fetch(`http://localhost:8000/issues/${issueToResolve.id}/resolve`, {
+      method: 'PUT',
     })
       .then(() => {
         const newIssues = issues.filter((_, i) => i !== index);
@@ -178,7 +217,6 @@ function App() {
         </nav>
       </header>
       <main>
-
         {location.pathname !== '/' && location.pathname !== '/resolved-issues' && (
           <button
             className="toggle-form-button"
@@ -261,7 +299,7 @@ function App() {
               </div>
               <div>
                 <label>
-                  Systems Admin?
+                  Who is doing it?
                   <input
                     type="text"
                     name="person"
@@ -280,82 +318,74 @@ function App() {
                   />
                 </label>
               </div>
-              <div>
-                <button type="button" onClick={handleCreate}>Create</button>
-                <button type="button" onClick={handleCancel}>Cancel</button>
-              </div>
+              <button type="button" onClick={handleCreate}>Create Issue</button>
+              <button type="button" onClick={handleCancel}>Cancel</button>
             </form>
           </div>
         )}
-
+        
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/ongoing-issues" element={
-            !showAddIssueForm && (
-              <div className="issues-container">
-                {issues.length > 0 ? (
-                  <>
-                    <h2>Ongoing Issues</h2>
-                    <div className="issue-list">
-                      {issues.map((issue, index) =>
-                        editIndex === index ? (
-                          <EditIssueForm
-                            key={index}
-                            issue={issue}
-                            onSave={(updatedIssue) => handleUpdateIssue(updatedIssue)}
-                            onCancel={() => setEditIndex(null)}
-                          />
-                        ) : (
-                          <IssueCard
-                            key={index}
-                            issue={issue}
-                            onEdit={() => setEditIndex(index)}
-                            onResolve={() => handleResolve(index)}
-                          />
-                        )
-                      )}
-                    </div>
-                  </>
+          <Route
+            path="/ongoing-issues"
+            element={
+              <div className='issues-container'>
+                <h2>Ongoing Issues</h2>
+                <div className='issue-list'>
+                {issues.length === 0 ? (
+                  <p>No ongoing issues</p>
                 ) : (
-                  <p>No ongoing issues.</p>
+                  issues.map((issue, index) => (
+                    <IssueCard
+                      key={issue.id}
+                      issue={issue}
+                      onResolve={() => handleResolve(index)}
+                      onEdit={() => setEditIndex(index)}
+                    />
+                  ))
                 )}
+                </div>
+                <div className="pagination-controls">
+                  {ongoingOffset > 0 && <button onClick={handlePreviousOngoingPage}>Previous</button>}
+                  {ongoingOffset + limit < totalOngoingIssues && <button onClick={handleNextOngoingPage}>Next</button>}
+                </div>
               </div>
-            )
-          } />
-          <Route path="/resolved-issues" element={
-            <div className="issues-container">
-              <h2>Resolved Issues</h2>
-              {resolvedIssues.length > 0 ? (
-                <>
-                  <div className="issue-list">
-                    {resolvedIssues.map((issue, index) => (
-                      <IssueCard
-                        key={index}
-                        issue={issue}
-                        isResolved={true}
-                      />
-                    ))}
-                  </div>
+            }
+          />
+          <Route
+            path="/resolved-issues"
+            element={
 
-                  {totalIssues > limit && (
-                    <div className="pagination">
-                      <button onClick={handlePreviousPage} disabled={offset === 0}>
-                        Previous
-                      </button>
-                      <button
-                        onClick={handleNextPage}
-                        disabled={offset + limit >= totalIssues}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p>No resolved issues.</p>
-              )}
-            </div>
-          } />
+              <div className='issues-container'>
+                <h2>Resolved Issues</h2>
+                <div className="issue-list">
+                {resolvedIssues.length === 0 ? (
+                  <p>No resolved issues</p>
+                ) : (
+                  resolvedIssues.map((issue, index) => (
+                    <IssueCard
+                      key={issue.id}
+                      issue={issue}
+                    />
+                  ))
+                )}
+                </div>
+                <div className="pagination-controls">
+                  {resolvedOffset > 0 && <button onClick={handlePreviousResolvedPage}>Previous</button>}
+                  {resolvedOffset + limit < totalResolvedIssues && <button onClick={handleNextResolvedPage}>Next</button>}
+                </div>
+              </div>
+            }
+          />
+          <Route
+            path="/edit-issue/:index"
+            element={
+              <EditIssueForm
+                issue={issues[editIndex]}
+                onSave={handleUpdateIssue}
+              />
+            }
+          />
         </Routes>
       </main>
     </div>

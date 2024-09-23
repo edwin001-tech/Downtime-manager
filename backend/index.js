@@ -26,38 +26,6 @@ connection.connect((err) => {
   console.log('Connected to the MySQL database.');
 });
 
-// Routes
-
-// Get all issues (both ongoing and resolved) with pagination
-app.get('/issues', (req, res) => {
-  const limit = parseInt(req.query.limit) || 6; // default limit to 6
-  const offset = parseInt(req.query.offset) || 0; // default offset to 0
-
-  const query = 'SELECT SQL_CALC_FOUND_ROWS * FROM issues LIMIT ? OFFSET ?';
-  const countQuery = 'SELECT FOUND_ROWS() as total';
-
-  connection.query(query, [limit, offset], (err, results) => {
-    if (err) {
-      console.error('Error fetching issues:', err);
-      res.status(500).json({ error: 'Failed to fetch issues' });
-      return;
-    }
-
-    connection.query(countQuery, (err, countResults) => {
-      if (err) {
-        console.error('Error fetching total issue count:', err);
-        res.status(500).json({ error: 'Failed to fetch total issue count' });
-        return;
-      }
-
-      res.json({
-        issues: results,
-        totalIssues: countResults[0].total,
-      });
-    });
-  });
-});
-
 // Create a new issue
 app.post('/issues', (req, res) => {
   const { issue, since, service, cause, impact, trying, person, additionalInfo } = req.body;
@@ -88,7 +56,7 @@ app.put('/issues/:id', (req, res) => {
 });
 
 // Resolve an issue (change its status instead of deleting it)
-app.delete('/issues/:id', (req, res) => {
+app.put('/issues/:id/resolve', (req, res) => {
   const { id } = req.params;
   const query = 'UPDATE issues SET status = "resolved" WHERE id = ?';
   connection.query(query, [id], (err) => {
@@ -96,12 +64,12 @@ app.delete('/issues/:id', (req, res) => {
       console.error('Error resolving issue:', err);
       res.status(500).json({ error: 'Failed to resolve issue' });
     } else {
-      res.status(204).send();
+      res.status(200).send({ message: 'Issue resolved' });
     }
   });
 });
 
-// Retrieve resolved issues separately with pagination
+// Retrieve resolved issues with pagination
 app.get('/resolved-issues', (req, res) => {
   const limit = parseInt(req.query.limit) || 6;
   const offset = parseInt(req.query.offset) || 0;
@@ -131,8 +99,7 @@ app.get('/resolved-issues', (req, res) => {
   });
 });
 
-
-// Retrieve ongoing issues separately with pagination
+// Retrieve ongoing issues with pagination
 app.get('/ongoing-issues', (req, res) => {
   const limit = parseInt(req.query.limit) || 6;
   const offset = parseInt(req.query.offset) || 0;
@@ -162,24 +129,33 @@ app.get('/ongoing-issues', (req, res) => {
   });
 });
 
-
-// Search for issues with pagination
+// Search for issues with pagination and optional status filter
 app.get('/search', (req, res) => {
   const searchTerm = req.query.q;
+  const status = req.query.status || null; // Add optional status filter
   const limit = parseInt(req.query.limit) || 6;
   const offset = parseInt(req.query.offset) || 0;
 
-  const query = `
+  let query = `
     SELECT SQL_CALC_FOUND_ROWS * FROM issues 
-    WHERE LOWER(issue) LIKE LOWER(?) OR LOWER(service) LIKE LOWER(?) OR LOWER(cause) LIKE LOWER(?) 
+    WHERE (LOWER(issue) LIKE LOWER(?) OR LOWER(service) LIKE LOWER(?) OR LOWER(cause) LIKE LOWER(?) 
     OR LOWER(impact) LIKE LOWER(?) OR LOWER(trying) LIKE LOWER(?) OR LOWER(person) LIKE LOWER(?) 
-    OR LOWER(additionalInfo) LIKE LOWER(?)
-    LIMIT ? OFFSET ?
+    OR LOWER(additionalInfo) LIKE LOWER(?))
   `;
-  const countQuery = 'SELECT FOUND_ROWS() as total';
-  const wildcardTerm = `%${searchTerm}%`;
 
-  connection.query(query, [wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, wildcardTerm, limit, offset], (err, results) => {
+  const queryParams = [`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`];
+
+  if (status) {
+    query += ` AND status = ?`; // Filter by status
+    queryParams.push(status);
+  }
+
+  query += ` LIMIT ? OFFSET ?`;
+  queryParams.push(limit, offset);
+
+  const countQuery = 'SELECT FOUND_ROWS() as total';
+
+  connection.query(query, queryParams, (err, results) => {
     if (err) {
       console.error('Error searching issues:', err);
       res.status(500).json({ error: 'Failed to search issues' });
