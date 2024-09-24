@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Route, Routes, Link, useLocation } from 'react-router-dom';
+import { Route, Routes, Link, useLocation, useNavigate } from 'react-router-dom';
 import './App.css';
 import IssueCard from './IssueCard';
 import EditIssueForm from './EditIssueForm';
@@ -21,7 +21,6 @@ function App() {
   const [resolvedIssues, setResolvedIssues] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [showAddIssueForm, setShowAddIssueForm] = useState(false);
-  
   const [limit] = useState(6); // items per page
 
   // Ongoing issues pagination state
@@ -33,6 +32,7 @@ function App() {
   const [totalResolvedIssues, setTotalResolvedIssues] = useState(0);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Fetch ongoing issues
   const fetchOngoingIssues = useCallback(() => {
@@ -194,6 +194,7 @@ function App() {
       .then(() => {
         setIssues(issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue));
         setEditIndex(null);
+        navigate('/ongoing-issues'); // Redirect back to ongoing issues
       })
       .catch(error => console.error('Error updating issue:', error));
   };
@@ -318,71 +319,74 @@ function App() {
                   />
                 </label>
               </div>
-              <button type="button" onClick={handleCreate}>Create Issue</button>
-              <button type="button" onClick={handleCancel}>Cancel</button>
+              <button type="button" onClick={handleCreate}>
+                Create Incident
+              </button>
+              <button type="button" onClick={handleCancel}>
+                Cancel
+              </button>
             </form>
           </div>
         )}
-        
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
             path="/ongoing-issues"
             element={
-              <div className='issues-container'>
-                <h2>Ongoing Issues</h2>
-                <div className='issue-list'>
-                {issues.length === 0 ? (
-                  <p>No ongoing issues</p>
-                ) : (
-                  issues.map((issue, index) => (
-                    <IssueCard
-                      key={issue.id}
-                      issue={issue}
-                      onResolve={() => handleResolve(index)}
-                      onEdit={() => setEditIndex(index)}
-                    />
-                  ))
+              <>
+                <h1>Ongoing Issues</h1>
+                {issues.map((issue, index) => (
+                  <IssueCard
+                    key={issue.id}
+                    issue={issue}
+                    onEdit={() => {
+                      setEditIndex(index);
+                      navigate(`/ongoing-issues/edit/${issue.id}`);
+                    }}
+                    onResolve={() => handleResolve(index)}
+                  />
+                ))}
+                {totalOngoingIssues > limit && (
+                  <div className="pagination">
+                    <button onClick={handlePreviousOngoingPage} disabled={ongoingOffset === 0}>
+                      Previous
+                    </button>
+                    <button onClick={handleNextOngoingPage} disabled={ongoingOffset + limit >= totalOngoingIssues}>
+                      Next
+                    </button>
+                  </div>
                 )}
-                </div>
-                <div className="pagination-controls">
-                  {ongoingOffset > 0 && <button onClick={handlePreviousOngoingPage}>Previous</button>}
-                  {ongoingOffset + limit < totalOngoingIssues && <button onClick={handleNextOngoingPage}>Next</button>}
-                </div>
-              </div>
+              </>
             }
           />
           <Route
             path="/resolved-issues"
             element={
-
-              <div className='issues-container'>
-                <h2>Resolved Issues</h2>
-                <div className="issue-list">
-                {resolvedIssues.length === 0 ? (
-                  <p>No resolved issues</p>
-                ) : (
-                  resolvedIssues.map((issue, index) => (
-                    <IssueCard
-                      key={issue.id}
-                      issue={issue}
-                    />
-                  ))
+              <>
+                <h1>Resolved Issues</h1>
+                {resolvedIssues.map((issue, index) => (
+                  <IssueCard key={issue.id} issue={issue} isResolved />
+                ))}
+                {totalResolvedIssues > limit && (
+                  <div className="pagination">
+                    <button onClick={handlePreviousResolvedPage} disabled={resolvedOffset === 0}>
+                      Previous
+                    </button>
+                    <button onClick={handleNextResolvedPage} disabled={resolvedOffset + limit >= totalResolvedIssues}>
+                      Next
+                    </button>
+                  </div>
                 )}
-                </div>
-                <div className="pagination-controls">
-                  {resolvedOffset > 0 && <button onClick={handlePreviousResolvedPage}>Previous</button>}
-                  {resolvedOffset + limit < totalResolvedIssues && <button onClick={handleNextResolvedPage}>Next</button>}
-                </div>
-              </div>
+              </>
             }
           />
           <Route
-            path="/edit-issue/:index"
+            path="/ongoing-issues/edit/:id"
             element={
               <EditIssueForm
                 issue={issues[editIndex]}
                 onSave={handleUpdateIssue}
+                onCancel={() => setEditIndex(null)}
               />
             }
           />

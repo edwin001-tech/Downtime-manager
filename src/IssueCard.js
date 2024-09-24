@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faCopy, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import './IssueCard.css';
-import EditIssueForm from './EditIssueForm';
 
-const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => {
-  const [showEditForm, setShowEditForm] = useState(false);
-
-   // Function to copy issue to clipboard
-   const copyToClipboard = () => {
+const IssueCard = ({ issue, onResolve, isResolved, onClose, onEdit }) => {
+  // Function to copy issue to clipboard
+  const copyToClipboard = () => {
     const issueText = `
       Issue: ${issue.issue}
       Since: ${issue.since}
@@ -31,7 +28,7 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => 
         <div className="card-buttons">
           {/* Edit icon for ongoing issues */}
           {!isResolved && (
-            <button onClick={() => setShowEditForm(true)} title="Edit">
+            <button onClick={() => onEdit(issue)} title="Edit">
               <FontAwesomeIcon icon={faEdit} />
             </button>
           )}
@@ -45,7 +42,7 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => 
 
           {/* Resolve icon for ongoing issues */}
           {!isResolved && onResolve && (
-            <button className="resolve-button" onClick={onResolve} title="Resolve">
+            <button className="resolve-button" onClick={() => onResolve(issue)} title="Resolve">
               <FontAwesomeIcon icon={faCheckCircle} />
             </button>
           )}
@@ -57,18 +54,7 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onUpdateIssue }) => 
         </div>
       </div>
 
-      {/* Edit Form */}
-      {showEditForm && (
-        <EditIssueForm
-          issue={issue}
-          onSave={(updatedIssue) => {
-            onUpdateIssue(updatedIssue);
-            setShowEditForm(false);
-          }}
-          onCancel={() => setShowEditForm(false)}
-        />
-      )}
-
+      {/* Display issue details */}
       <p><strong>Since:</strong> {issue.since}</p>
       <p><strong>Affected Service:</strong> {issue.service}</p>
       <p><strong>Cause:</strong> {issue.cause}</p>

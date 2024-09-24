@@ -26,6 +26,12 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
     onSave(formData);
   };
 
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();  
+    }
+  };
+
   return (
     <div className="edit-issue-form">
       <h2>Edit Issue</h2>
@@ -55,7 +61,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <label>
-            Affected service?
+            Affected Service?
             <input
               type="text"
               name="service"
