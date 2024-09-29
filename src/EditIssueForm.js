@@ -26,7 +26,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
     onSave(formData);
   };
 
-  const handleCancel = () => {
+  const handleCancelEdit = () => {
     if (onCancel) {
       onCancel();  
     }
@@ -126,7 +126,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <button type="button" onClick={handleSave}>Save</button>
-          <button type="button" onClick={onCancel}>Cancel</button>
+          <button type="button" onClick={handleCancelEdit}>Cancel</button>
         </div>
       </form>
     </div>
