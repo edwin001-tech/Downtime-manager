@@ -26,10 +26,21 @@ connection.connect((err) => {
   console.log('Connected to the MySQL database.');
 });
 
+// Function to calculate the number of pages
+const calculateTotalPages = (totalItems, itemsPerPage) => {
+  return Math.ceil(totalItems / itemsPerPage);
+};
+
+
 // Create a new issue
 app.post('/issues', (req, res) => {
   const { issue, since, service, cause, impact, trying, person, additionalInfo } = req.body;
-  const query = 'INSERT INTO issues (issue, since, service, cause, impact, trying, person, additionalInfo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, "ongoing")';
+  const query = `
+    INSERT INTO issues 
+    (issue, since, service, cause, impact, trying, person, additionalInfo, status) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, "ongoing")
+  `;
+
   connection.query(query, [issue, since, service, cause, impact, trying, person, additionalInfo], (err, result) => {
     if (err) {
       console.error('Error creating issue:', err);
@@ -44,7 +55,12 @@ app.post('/issues', (req, res) => {
 app.put('/issues/:id', (req, res) => {
   const { id } = req.params;
   const { issue, since, service, cause, impact, trying, person, additionalInfo } = req.body;
-  const query = 'UPDATE issues SET issue = ?, since = ?, service = ?, cause = ?, impact = ?, trying = ?, person = ?, additionalInfo = ? WHERE id = ?';
+  const query = `
+    UPDATE issues 
+    SET issue = ?, since = ?, service = ?, cause = ?, impact = ?, trying = ?, person = ?, additionalInfo = ? 
+    WHERE id = ?
+  `;
+
   connection.query(query, [issue, since, service, cause, impact, trying, person, additionalInfo, id], (err) => {
     if (err) {
       console.error('Error updating issue:', err);
@@ -55,86 +71,103 @@ app.put('/issues/:id', (req, res) => {
   });
 });
 
-// Resolve an issue (change its status instead of deleting it)
+// Resolve an issue (change its status)
 app.put('/issues/:id/resolve', (req, res) => {
   const { id } = req.params;
   const query = 'UPDATE issues SET status = "resolved" WHERE id = ?';
+
   connection.query(query, [id], (err) => {
     if (err) {
       console.error('Error resolving issue:', err);
       res.status(500).json({ error: 'Failed to resolve issue' });
     } else {
-      res.status(200).send({ message: 'Issue resolved' });
+      res.status(200).json({ message: 'Issue resolved' });
     }
   });
 });
 
-// Retrieve resolved issues with pagination
+
+// Retrieve resolved issues with pagination by pages
 app.get('/resolved-issues', (req, res) => {
-  const limit = parseInt(req.query.limit) || 6;
-  const offset = parseInt(req.query.offset) || 0;
+  const page = parseInt(req.query.page) || 1;
+  const itemsPerPage = parseInt(req.query.itemsPerPage) || 6;
+  const offset = (page - 1) * itemsPerPage;
 
-  const query = 'SELECT SQL_CALC_FOUND_ROWS * FROM issues WHERE status = "resolved" LIMIT ? OFFSET ?';
-  const countQuery = 'SELECT FOUND_ROWS() as total';
+  const totalQuery = 'SELECT COUNT(*) as total FROM issues WHERE status = "resolved"';
+  const dataQuery = 'SELECT * FROM issues WHERE status = "resolved" LIMIT ? OFFSET ?';
 
-  connection.query(query, [limit, offset], (err, results) => {
+  connection.query(totalQuery, (err, totalResults) => {
     if (err) {
-      console.error('Error fetching resolved issues:', err);
-      res.status(500).json({ error: 'Failed to fetch resolved issues' });
+      console.error('Error fetching total resolved issue count:', err);
+      res.status(500).json({ error: 'Failed to fetch total resolved issue count' });
       return;
     }
 
-    connection.query(countQuery, (err, countResults) => {
+    const totalItems = totalResults[0].total;
+    const totalPages = calculateTotalPages(totalItems, itemsPerPage);
+
+    connection.query(dataQuery, [itemsPerPage, offset], (err, issues) => {
       if (err) {
-        console.error('Error fetching total resolved issue count:', err);
-        res.status(500).json({ error: 'Failed to fetch total resolved issue count' });
+        console.error('Error fetching resolved issues:', err);
+        res.status(500).json({ error: 'Failed to fetch resolved issues' });
         return;
       }
 
       res.json({
-        issues: results,
-        totalIssues: countResults[0].total,
+        issues,
+        totalItems,
+        totalPages,
+        currentPage: page,
+        itemsPerPage,
       });
     });
   });
 });
 
-// Retrieve ongoing issues with pagination
+// Retrieve ongoing issues with pagination by pages
 app.get('/ongoing-issues', (req, res) => {
-  const limit = parseInt(req.query.limit) || 6;
-  const offset = parseInt(req.query.offset) || 0;
+  const page = parseInt(req.query.page) || 1;
+  const itemsPerPage = parseInt(req.query.itemsPerPage) || 6;
+  const offset = (page - 1) * itemsPerPage;
 
-  const query = 'SELECT SQL_CALC_FOUND_ROWS * FROM issues WHERE status = "ongoing" LIMIT ? OFFSET ?';
-  const countQuery = 'SELECT FOUND_ROWS() as total';
+  const totalQuery = 'SELECT COUNT(*) as total FROM issues WHERE status = "ongoing"';
+  const dataQuery = 'SELECT * FROM issues WHERE status = "ongoing" LIMIT ? OFFSET ?';
 
-  connection.query(query, [limit, offset], (err, results) => {
+  connection.query(totalQuery, (err, totalResults) => {
     if (err) {
-      console.error('Error fetching ongoing issues:', err);
-      res.status(500).json({ error: 'Failed to fetch ongoing issues' });
+      console.error('Error fetching total ongoing issue count:', err);
+      res.status(500).json({ error: 'Failed to fetch total ongoing issue count' });
       return;
     }
 
-    connection.query(countQuery, (err, countResults) => {
+    const totalItems = totalResults[0].total;
+    const totalPages = calculateTotalPages(totalItems, itemsPerPage);
+
+    connection.query(dataQuery, [itemsPerPage, offset], (err, issues) => {
       if (err) {
-        console.error('Error fetching total ongoing issue count:', err);
-        res.status(500).json({ error: 'Failed to fetch total ongoing issue count' });
+        console.error('Error fetching ongoing issues:', err);
+        res.status(500).json({ error: 'Failed to fetch ongoing issues' });
         return;
       }
 
       res.json({
-        issues: results,
-        totalIssues: countResults[0].total,
+        issues,
+        totalItems,
+        totalPages,
+        currentPage: page,
+        itemsPerPage,
       });
     });
   });
 });
 
-// Search for issues with pagination and optional status filter
+// Search for issues with pagination by pages and optional status filter
 app.get('/search', (req, res) => {
-  const searchTerm = req.query.q;
-  const status = req.query.status || null; // Add optional status filter
-  const limit = parseInt(req.query.limit) || 6;
-  const offset = parseInt(req.query.offset) || 0;
+  const searchTerm = req.query.q || '';
+  const status = req.query.status || null;
+  const page = parseInt(req.query.page) || 1;
+  const itemsPerPage = parseInt(req.query.itemsPerPage) || 6;
+  const offset = (page - 1) * itemsPerPage;
 
   let query = `
     SELECT SQL_CALC_FOUND_ROWS * FROM issues 
@@ -143,19 +176,19 @@ app.get('/search', (req, res) => {
     OR LOWER(additionalInfo) LIKE LOWER(?))
   `;
 
-  const queryParams = [`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`];
+  const queryParams = Array(7).fill(`%${searchTerm}%`);
 
   if (status) {
-    query += ` AND status = ?`; // Filter by status
+    query += ` AND status = ?`;
     queryParams.push(status);
   }
 
   query += ` LIMIT ? OFFSET ?`;
-  queryParams.push(limit, offset);
+  queryParams.push(itemsPerPage, offset);
 
   const countQuery = 'SELECT FOUND_ROWS() as total';
 
-  connection.query(query, queryParams, (err, results) => {
+  connection.query(query, queryParams, (err, issues) => {
     if (err) {
       console.error('Error searching issues:', err);
       res.status(500).json({ error: 'Failed to search issues' });
@@ -169,14 +202,21 @@ app.get('/search', (req, res) => {
         return;
       }
 
+      const totalItems = countResults[0].total;
+      const totalPages = calculateTotalPages(totalItems, itemsPerPage);
+
       res.json({
-        issues: results,
-        totalIssues: countResults[0].total,
+        issues,
+        totalItems,
+        totalPages,
+        currentPage: page,
+        itemsPerPage,
       });
     });
   });
 });
 
+// Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

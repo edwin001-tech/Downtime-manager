@@ -11,7 +11,7 @@ const Home = () => {
       </p>
       <ul>
         <li>Keeping track of all the current issues affecting the systems</li>
-        <li>Managing a list of actions per issue</li>
+        <li>Search Resolved issues from the database</li>
         <li>Separate ongoing issues from resolved issues</li>
         <li>Tracking who is working on what issue(s)</li>
         <li>Edit issues where there are updates</li>

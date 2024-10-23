@@ -12,8 +12,8 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onEdit }) => {
       Affected Service: ${issue.service}
       Cause: ${issue.cause}
       Impact: ${issue.impact}
-      What are we trying?: ${issue.trying}
-      Who is doing it?: ${issue.person}
+      Action: ${issue.trying}
+      System Admin: ${issue.person}
       Additional Information: ${issue.additionalInfo}
     `;
     navigator.clipboard.writeText(issueText).then(() => {
@@ -59,9 +59,9 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onEdit }) => {
       <p><strong>Affected Service:</strong> {issue.service}</p>
       <p><strong>Cause:</strong> {issue.cause}</p>
       <p><strong>Impact:</strong> {issue.impact}</p>
-      <p><strong>What are we trying?:</strong> {issue.trying}</p>
+      <p><strong>Action:</strong> {issue.trying}</p>
       <p><strong>System Admin:</strong> {issue.person}</p>
-      <p><strong>Any additional Information?:</strong> {issue.additionalInfo}</p>
+      <p><strong>Any additional Information:</strong> {issue.additionalInfo}</p>
     </div>
   );
 };

@@ -5,6 +5,11 @@
   text-align: left;
   font-family: 'Courier New', monospace;
   font-size: small;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  
 }
 
 /* Header styling */
@@ -155,4 +160,40 @@ button:hover {
 .pagination button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.pagination-controls button {
+  margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination-controls button:hover {
+  opacity: 0.8;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-size: 16px;
+  margin: 0 10px;
+  color: #333;
+}
+
+.pagination-controls button:focus {
+  outline: none;
 }

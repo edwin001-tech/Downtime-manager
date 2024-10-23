@@ -49,7 +49,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <label>
-            Since When?
+            Since
             <input
               type="text"
               name="since"
@@ -61,7 +61,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <label>
-            Affected Service?
+            Affected Service
             <input
               type="text"
               name="service"
@@ -72,7 +72,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <label>
-            Cause?
+            Cause
             <input
               type="text"
               name="cause"
@@ -83,7 +83,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <label>
-            Impact?
+            Impact
             <input
               type="text"
               name="impact"
@@ -94,7 +94,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <label>
-            What are we trying?
+            Action
             <input
               type="text"
               name="trying"
@@ -116,7 +116,7 @@ const EditIssueForm = ({ issue, onSave, onCancel }) => {
         </div>
         <div>
           <label>
-            Any additional Information?
+            Any additional Information
             <textarea
               name="additionalInfo"
               value={formData.additionalInfo}
