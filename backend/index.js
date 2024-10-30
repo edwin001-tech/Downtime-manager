@@ -74,17 +74,22 @@ app.put('/issues/:id', (req, res) => {
 // Resolve an issue (change its status)
 app.put('/issues/:id/resolve', (req, res) => {
   const { id } = req.params;
-  const query = 'UPDATE issues SET status = "resolved" WHERE id = ?';
+  const query = `
+    UPDATE issues 
+    SET status = "resolved", resolved_timestamp = NOW() 
+    WHERE id = ?
+  `;
 
   connection.query(query, [id], (err) => {
     if (err) {
       console.error('Error resolving issue:', err);
       res.status(500).json({ error: 'Failed to resolve issue' });
     } else {
-      res.status(200).json({ message: 'Issue resolved' });
+      res.status(200).json({ message: 'Issue resolved', resolved_timestamp: new Date() });
     }
   });
 });
+
 
 
 // Retrieve resolved issues with pagination by pages

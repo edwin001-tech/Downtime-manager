@@ -194,20 +194,22 @@ function App() {
   // Resolving an issue (PUT request instead of DELETE)
   const handleResolve = (index) => {
     const issueToResolve = issues[index];
-
+  
     fetch(`http://localhost:8000/issues/${issueToResolve.id}/resolve`, {
       method: "PUT",
     })
-      .then(() => {
+      .then((response) => response.json())
+      .then((data) => {
         const newIssues = issues.filter((_, i) => i !== index);
         setIssues(newIssues);
         setResolvedIssues([
           ...resolvedIssues,
-          { ...issueToResolve, status: "resolved" },
+          { ...issueToResolve, status: "resolved", resolved_timestamp: data.resolved_timestamp },
         ]);
       })
       .catch((error) => console.error("Error resolving issue:", error));
   };
+  
 
   const handleUpdateIssue = (updatedIssue) => {
     fetch(`http://localhost:8000/issues/${updatedIssue.id}`, {

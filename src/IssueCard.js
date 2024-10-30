@@ -6,6 +6,11 @@ import './IssueCard.css';
 const IssueCard = ({ issue, onResolve, isResolved, onClose, onEdit }) => {
   // Function to copy issue to clipboard
   const copyToClipboard = () => {
+
+    const resolvedAt = isResolved && issue.resolved_timestamp 
+    ? new Date(issue.resolved_timestamp).toLocaleString() 
+    : 'N/A';
+
     const issueText = `
       Issue: ${issue.issue}
       Since: ${issue.since}
@@ -15,6 +20,7 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onEdit }) => {
       Action: ${issue.trying}
       System Admin: ${issue.person}
       Additional Information: ${issue.additionalInfo}
+      ${isResolved ? `Resolved At: ${resolvedAt}` : ''}
     `;
     navigator.clipboard.writeText(issueText).then(() => {
       alert('Issue copied to clipboard');
@@ -62,6 +68,11 @@ const IssueCard = ({ issue, onResolve, isResolved, onClose, onEdit }) => {
       <p><strong>Action:</strong> {issue.trying}</p>
       <p><strong>System Admin:</strong> {issue.person}</p>
       <p><strong>Any additional Information:</strong> {issue.additionalInfo}</p>
+      
+      {/* Conditionally render resolved timestamp if issue is resolved */}
+      {isResolved && issue.resolved_timestamp && (
+        <p><strong>Resolved At:</strong> {new Date(issue.resolved_timestamp).toLocaleString()}</p>
+      )}
     </div>
   );
 };
