@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Backend service
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"  # Expose backend on port 8000
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=eduin
+      - DB_PASSWORD=Stiles!1
+      - DB_NAME=downtime_manager
+    depends_on:
+      mysql:
+        condition: service_healthy  # Ensure backend starts after MySQL is healthy
+    networks:
+      - app-network
+
+  # Frontend service
+  frontend:
+    build: .
+    ports:
+      - "80:80"  # Expose frontend on port 80
+    depends_on:
+      - backend  # Ensure frontend starts after backend
+    networks:
+      - app-network
+
+  # MySQL Database service
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: downtime_manager
+      MYSQL_USER: eduin
+      MYSQL_PASSWORD: Stiles!1
+    volumes:
+      - mysql-data:/var/lib/mysql  # Persist MySQL data
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# Volumes to persist MySQL data
+volumes:
+  mysql-data:
+
+# Create a shared network for the app
+networks:
+  app-network:
+
