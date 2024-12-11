@@ -1,65 +1,94 @@
-import { axiosInstance } from "../utils/axios";
+import { useState } from "react";
 import Breadcrumbs from "../components/BreadCrumbs";
-import { useState, useEffect } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { initFlowbite } from "flowbite";
+import IssueModal from "../components/IssueModal";
 
 export default function OngoingIssuesList() {
-  let [searchParams, setSearchParams] = useSearchParams();
-  const [campaigns, setCampaigns] = useState([]);
-  const [perPage, setPerPage] = useState(10);
-  const [count, setCount] = useState(0);
-  const currentPage = parseInt(searchParams.get("page") || 1);
-  const currentUrlParams = new URLSearchParams(window.location.search);
-  const [showing, setShowing] = useState({});
+  useEffect(() => {
+    initFlowbite();
+  }, []);
+
   const [search, setSearch] = useState("");
+  const handleSearchSubmit = () => {};
+  const handleNextPage = () => {};
+  const handlePrevPage = () => {};
 
-  useEffect(() => {
-    const getCampaigns = async () => {
-      try {
-        const url = `/api/brand/campaigns/?${searchParams}`;
-        const { data } = await axiosInstance.get(url);
-        setCampaigns(data?.results);
-        setPerPage(data?.per_page);
-        setCount(data?.count);
-      } catch (error) {
-        console.error("An error occured", error);
-      }
-    };
-    getCampaigns();
-  }, [searchParams]);
+  const ongoingIssues = [
+    {
+      id: 1,
+      description: "Error in the login page",
+      affectedService: "Authentication Service",
+      cause: "Incorrect validation logic in the back-end",
+      impact: "Users are unable to log in, causing disruptions for all users.",
+    },
+    {
+      id: 2,
+      description: "Payment gateway timeout",
+      affectedService: "Payment Service",
+      cause: "External API latency",
+      impact: "Users cannot complete purchases, leading to revenue loss.",
+    },
+    {
+      id: 3,
+      description: "Slow loading of product pages",
+      affectedService: "Product Service",
+      cause: "Database query optimization required",
+      impact: "Poor user experience on high-demand pages.",
+    },
+    {
+      id: 4,
+      description: "Emails not being sent",
+      affectedService: "Email Notification Service",
+      cause: "SMTP server misconfiguration",
+      impact: "Users are not receiving order confirmations and updates.",
+    },
+    {
+      id: 5,
+      description: "High CPU usage on the server",
+      affectedService: "Web Server",
+      cause: "Unoptimized loops in a recent update",
+      impact: "Degraded performance across the platform.",
+    },
+    {
+      id: 6,
+      description: "Incorrect data displayed in the dashboard",
+      affectedService: "Analytics Service",
+      cause: "Bug in data aggregation logic",
+      impact: "Misleading insights for decision-makers.",
+    },
+    {
+      id: 7,
+      description: "Mobile app crashing on Android devices",
+      affectedService: "Mobile App",
+      cause: "Compatibility issue with the latest OS update",
+      impact: "Significant loss of usability for Android users.",
+    },
+    {
+      id: 8,
+      description: "Unable to upload files",
+      affectedService: "File Upload Service",
+      cause: "Misconfigured file size limit",
+      impact: "Users cannot share essential documents.",
+    },
+    {
+      id: 9,
+      description: "Search functionality returning outdated results",
+      affectedService: "Search Service",
+      cause: "Indexing service not running",
+      impact: "Users struggle to find relevant products or information.",
+    },
+    {
+      id: 10,
+      description: "Session timeout issue",
+      affectedService: "Session Management Service",
+      cause: "Timeout settings set too low",
+      impact: "Users are logged out prematurely, disrupting workflows.",
+    },
+  ];
 
-  // Pagination
-  const handleNextPage = () => {
-    const totalPages = Math.ceil(parseInt(count) / parseInt(perPage));
-    const nextPage = currentPage + 1;
-    if (nextPage > totalPages) return;
-    currentUrlParams.set("page", nextPage);
-    setSearchParams(currentUrlParams);
-  };
-
-  const handlePrevPage = () => {
-    const prevPage = currentPage - 1;
-    if (prevPage < 1) return;
-    currentUrlParams.set("page", prevPage);
-    setSearchParams(currentUrlParams);
-  };
-
-  useEffect(() => {
-    const updateShowing = () => {
-      const showingFrom = (currentPage - 1) * perPage + 1;
-      const showingTo = showingFrom + perPage - 1;
-      setShowing({ ...showing, from: showingFrom, to: showingTo });
-    };
-    updateShowing();
-  }, [currentPage]);
-
-  // Search
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    currentUrlParams.set("search_query", search);
-    currentUrlParams.set("page", 1);
-    setSearchParams(currentUrlParams);
-  };
+  const [activeIssue, setActiveIssue] = useState(ongoingIssues[0]);
 
   return (
     <>
@@ -137,24 +166,101 @@ export default function OngoingIssuesList() {
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
                     <th scope="col" className="px-4 py-3">
-                      Name
+                      Description
                     </th>
                     <th scope="col" className="px-4 py-3">
-                      Description
+                      Affected Service
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      Cause
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      IMpact
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      <span className="sr-only">Actions</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {campaigns?.map((creator, index) => (
-                    <tr key={index} className="border-b dark:border-gray-700">
+                  {ongoingIssues.map((issue) => (
+                    <tr
+                      key={issue?.id}
+                      className="border-b dark:border-gray-700 "
+                    >
                       <th
                         scope="row"
-                        className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                        className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white hover:cursor-pointer"
+                        data-modal-target="readProductModal"
+                        data-modal-toggle="readProductModal"
+                        onClick={() => setActiveIssue(issue)}
                       >
-                        {creator?.name || "-"}
+                        {issue?.description}
                       </th>
-                      <td className="px-4 py-3">
-                        {creator?.description || "-"}
+                      <td className="px-4 py-3">{issue?.affectedService}</td>
+                      <td className="px-4 py-3">{issue?.cause}</td>
+                      <td className="px-4 py-3">{issue?.impact}</td>
+                      <td className="px-4 py-3 flex items-center justify-end">
+                        <button
+                          id={`apple-imac-${issue?.id}-dropdown-button`}
+                          data-dropdown-toggle={`apple-imac-${issue?.id}-dropdown`}
+                          className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                          type="button"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            aria-hidden="true"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                          </svg>
+                        </button>
+                        <div
+                          id={`apple-imac-${issue?.id}-dropdown`}
+                          className="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+                        >
+                          <ul
+                            className="py-1 text-sm text-gray-700 dark:text-gray-200"
+                            aria-labelledby={`apple-imac-${issue?.id}-dropdown-button`}
+                          >
+                            <li>
+                              <div
+                                className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                id="readProductButton"
+                                data-modal-target="readProductModal"
+                                data-modal-toggle="readProductModal"
+                                onClick={() => setActiveIssue(issue)}
+                              >
+                                Show
+                              </div>
+                            </li>
+                            <li>
+                              <Link to={`/ongoing/${issue?.id}/edit`}>
+                                <div className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                  Edit
+                                </div>
+                              </Link>
+                            </li>
+                            <li>
+                              <a
+                                href="#"
+                                className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                              >
+                                Mark as resolved
+                              </a>
+                            </li>
+                          </ul>
+                          <div className="py-1">
+                            <a
+                              href="#"
+                              className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                            >
+                              Delete
+                            </a>
+                          </div>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -168,11 +274,11 @@ export default function OngoingIssuesList() {
               <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
                 Showing{" "}
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {showing?.from}-{showing?.to}{" "}
+                  1 - 10
                 </span>
-                of{" "}
+                of
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {count}
+                  100
                 </span>
               </span>
               <ul className="inline-flex items-stretch -space-x-px">
@@ -222,6 +328,8 @@ export default function OngoingIssuesList() {
             </nav>
           </div>
         </div>
+        {/* Modals */}
+        <IssueModal issue={activeIssue} />
       </section>
     </>
   );

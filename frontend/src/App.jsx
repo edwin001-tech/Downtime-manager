@@ -1,6 +1,5 @@
 import "./App.css";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
 import Dashboard from "./layouts/Dashboard";
 import OngoingIssuesList from "./pages/OngoingIssuesList";
 import IssuesCreate from "./pages/IssuesCreate";
@@ -12,8 +11,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 function App() {
+ 
   return (
     <BrowserRouter>
       <Routes>
@@ -25,7 +24,6 @@ function App() {
           <Route path="resolved" element={<ResolvedIssuesList />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ToastContainer

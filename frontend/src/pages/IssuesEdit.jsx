@@ -21,7 +21,7 @@ export default function IssuesEdit() {
     <>
       <Breadcrumbs />
       <section className="bg-white dark:bg-gray-900">
-        <div className="py-8 px-1 max-w-5xl lg:py-16">
+        <div className="py-8 px-1 max-w-creen-xl lg:py-16">
           <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
             Edit Issue
           </h2>
@@ -185,7 +185,7 @@ export default function IssuesEdit() {
                     <span className="sr-only">Loading...</span>
                   </div>
                 ) : (
-                  "Create Issue"
+                  "Save Issue"
                 )}
               </button>
             </div>
