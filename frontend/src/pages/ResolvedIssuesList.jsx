@@ -1,66 +1,15 @@
 import Breadcrumbs from "../components/BreadCrumbs";
-import { useSearchParams } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { axiosInstance } from "../utils/axios";
+import { useState } from "react";
 
 export default function ResolvedIssuesList() {
-  let [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [perPage, setPerPage] = useState(10);
   const [count, setCount] = useState(0);
   const [showing, setShowing] = useState({});
   const [search, setSearch] = useState("");
-  const currentPage = parseInt(searchParams.get("page") || 1);
-  const currentUrlParams = new URLSearchParams(window.location.search);
 
-  const getProducts = async () => {
-    try {
-      const url = `/api/brand/campaigns/products/?${searchParams}`;
-      const { data } = await axiosInstance.get(url);
-      setProducts(data?.results);
-      setPerPage(data?.per_page);
-      setCount(data?.count);
-    } catch (error) {
-      console.error("An error occured", error);
-    }
-  };
-
-  useEffect(() => {
-    getProducts();
-  }, [searchParams]);
-
-  // Pagination
-  const handleNextPage = () => {
-    const totalPages = Math.ceil(parseInt(count) / parseInt(perPage));
-    const nextPage = currentPage + 1;
-    if (nextPage > totalPages) return;
-    currentUrlParams.set("page", nextPage);
-    setSearchParams(currentUrlParams);
-  };
-
-  const handlePrevPage = () => {
-    const prevPage = currentPage - 1;
-    if (prevPage < 1) return;
-    currentUrlParams.set("page", prevPage);
-    setSearchParams(currentUrlParams);
-  };
-
-  useEffect(() => {
-    const updateShowing = () => {
-      const showingFrom = (currentPage - 1) * perPage + 1;
-      const showingTo = showingFrom + perPage - 1;
-      setShowing({ ...showing, from: showingFrom, to: showingTo });
-    };
-    updateShowing();
-  }, [currentPage]);
-
-  // Search
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    currentUrlParams.set("search_query", search);
-    currentUrlParams.set("page", 1);
-    setSearchParams(currentUrlParams);
-  };
+  const handleNextPage = () => {};
+  const handlePrevPage = () => {};
+  const handleSearchSubmit = () => {};
 
   return (
     <>
@@ -122,19 +71,13 @@ export default function ResolvedIssuesList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products?.map((product, index) => (
-                    <tr key={index} className="border-b dark:border-gray-700">
-                      <th
-                        scope="row"
-                        className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                      >
-                        {product?.name}
-                      </th>
-                      <td className="px-4 py-3">
-                        {product?.description || "-"}
-                      </td>
-                    </tr>
-                  ))}
+                  <tr className="border-b dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    ></th>
+                    <td className="px-4 py-3"></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
