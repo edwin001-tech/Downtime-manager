@@ -47,7 +47,7 @@ function App() {
   const [currentResolvedPage, setCurrentResolvedPage] = useState(1);
   const [totalResolvedPages, setTotalResolvedPages] = useState(0);
 
-  const location = useLocation();
+  const location = useLocation(); 
   const navigate = useNavigate();
 
   // Fetch ongoing issues
@@ -194,7 +194,7 @@ function App() {
   // Resolving an issue (PUT request instead of DELETE)
   const handleResolve = (index) => {
     const issueToResolve = issues[index];
-  
+
     fetch(`http://localhost:8000/issues/${issueToResolve.id}/resolve`, {
       method: "PUT",
     })
@@ -204,12 +204,15 @@ function App() {
         setIssues(newIssues);
         setResolvedIssues([
           ...resolvedIssues,
-          { ...issueToResolve, status: "resolved", resolved_timestamp: data.resolved_timestamp },
+          {
+            ...issueToResolve,
+            status: "resolved",
+            resolved_timestamp: data.resolved_timestamp,
+          },
         ]);
       })
       .catch((error) => console.error("Error resolving issue:", error));
   };
-  
 
   const handleUpdateIssue = (updatedIssue) => {
     fetch(`http://localhost:8000/issues/${updatedIssue.id}`, {
@@ -273,7 +276,9 @@ function App() {
               className="toggle-form-button"
               onClick={handleAddIssueFormToggle}
             >
-              {showAddIssueForm ? "Close Add New Incident Form" : "Add New Incident"}
+              {showAddIssueForm
+                ? "Close Add New Incident Form"
+                : "Add New Incident"}
             </button>
           )}
 
