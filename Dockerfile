@@ -18,8 +18,8 @@ FROM nginx:alpine
 # Copy the build output from the previous step to the Nginx html directory
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose the port that Nginx runs on
-EXPOSE 80
+# Expose the backend port (if your Express app runs on port 5000)
+EXPOSE 8000
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
