@@ -1,21 +1,26 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18
+# Use an official Node.js image to build the React app
+FROM node:18 as build
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Set working directory
+WORKDIR /app
 
 # Install dependencies
+COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the application code
+# Copy the source code and build the React app
 COPY . .
+RUN npm run build
 
-# Expose the backend port (if your Express app runs on port 5000)
-EXPOSE 8000
+# Use an Nginx image to serve the built files
+FROM nginx:alpine
 
-# Start the Node.js application
-CMD ["npm", "start"]
+# Copy the build output from the previous step to the Nginx html directory
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expose the port that Nginx runs on
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
 
